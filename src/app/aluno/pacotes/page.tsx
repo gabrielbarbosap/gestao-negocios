@@ -66,7 +66,7 @@ function PacotesContent() {
         body: JSON.stringify({
           priceId: pkg.priceId,
           customerId: user.uid,
-          businessId: user.uid,
+          businessId: process.env.NEXT_PUBLIC_BUSINESS_ID,
           credits: pkg.credits,
         }),
       });
