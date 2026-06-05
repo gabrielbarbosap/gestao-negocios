@@ -5,7 +5,7 @@ import {
   Waves, ArrowUpRight, Clock, MapPin, Plus, Sparkle, CircleNotch,
 } from "@phosphor-icons/react";
 import { useBusinessId } from "@/hooks/useBusinessId";
-import { useAdminDashboard } from "@/hooks/useAdminDashboard";
+import { useAdminDashboard, type DashboardData } from "@/hooks/useAdminDashboard";
 import { getLocation } from "@/constants/locations";
 import { formatCurrency, formatTime } from "@/lib/utils";
 import type { Session } from "@/types/session";
@@ -20,17 +20,17 @@ function greeting() {
 
 export default function AdminDashboard() {
   const businessId = useBusinessId();
-  const d = useAdminDashboard(businessId);
+  const d = useAdminDashboard(businessId) as DashboardData & { revenueTotal: number };
 
   const today = new Date().toLocaleDateString("pt-BR", {
     weekday: "long", day: "numeric", month: "long",
   });
 
   const stats = [
-    { label: "Aulas esta semana",  value: String(d.sessionsThisWeek),        icon: CalendarDots, accent: "var(--teal-light)" },
-    { label: "Alunos cadastrados", value: String(d.activeStudents),           icon: Users,        accent: "var(--gold)" },
-    { label: "Receita da semana",  value: formatCurrency(d.revenueThisWeek), icon: Money,        accent: "var(--teal-mid)" },
-    { label: "Ocupação média",     value: `${d.avgOccupancy}%`,               icon: TrendUp,      accent: "var(--sunset-2)" },
+    { label: "Aulas esta semana",  value: String(d.sessionsThisWeek),      icon: CalendarDots, accent: "var(--teal-light)" },
+    { label: "Alunos cadastrados", value: String(d.activeStudents),         icon: Users,        accent: "var(--gold)" },
+    { label: "Receita total",      value: formatCurrency(d.revenueTotal),   icon: Money,        accent: "var(--teal-mid)" },
+    { label: "Ocupação média",     value: `${d.avgOccupancy}%`,             icon: TrendUp,      accent: "var(--sunset-2)" },
   ];
 
   return (
