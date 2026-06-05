@@ -47,7 +47,7 @@ export function StudentHeader() {
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = "var(--text-2)"; (e.currentTarget as HTMLElement).style.background = "var(--bg-3)"; }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = "var(--text-3)"; (e.currentTarget as HTMLElement).style.background = "none"; }}
         >
-          <LogOut size={14} />
+          <SignOut size={14} />
           Sair
         </button>
       )}

@@ -70,7 +70,7 @@ export function AdminSidebar() {
           onClick={() => setOpen(true)}
           style={{ background: "none", border: "none", color: "var(--text-1)", cursor: "pointer", display: "flex", padding: "6px" }}
         >
-          <Menu size={22} />
+          <List size={22} />
         </button>
         <Link href="/" className="font-display" style={{ fontSize: "1.1rem", color: "var(--text-1)" }}>
           Ivan Silva Surf School

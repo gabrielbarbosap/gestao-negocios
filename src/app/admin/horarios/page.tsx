@@ -251,7 +251,7 @@ export default function HorariosPage() {
           <strong style={{ color: "var(--teal-light)" }}>{totalSemana}</strong> horários liberados nesta semana
         </span>
         <button onClick={handleSave} disabled={saving || !dirty} className="btn-primary" style={{ height: "44px", padding: "0 22px", display: "flex", alignItems: "center", gap: "8px", fontSize: "14px" }}>
-          {saving ? <CircleNotch size={17} className="ph-spin" /> : saved ? <Check size={17} /> : <Save size={17} />}
+          {saving ? <CircleNotch size={17} className="ph-spin" /> : saved ? <Check size={17} /> : <FloppyDisk size={17} />}
           {saving ? "Salvando..." : saved ? "Salvo!" : "Salvar semana"}
         </button>
       </div>
