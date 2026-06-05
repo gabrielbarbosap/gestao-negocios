@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Loader2, Star, Zap, Package } from "lucide-react";
 import { useStudentReservations } from "@/hooks/useStudentReservations";
@@ -39,6 +39,14 @@ const PACKAGES = [
 ];
 
 export default function PacotesPage() {
+  return (
+    <Suspense>
+      <PacotesContent />
+    </Suspense>
+  );
+}
+
+function PacotesContent() {
   const { user } = useStudentReservations();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState<string | null>(null);
