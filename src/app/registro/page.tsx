@@ -7,6 +7,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { signUp, signInWithGoogle, auth, onAuthStateChanged } from "@/lib/firebase/auth";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase/config";
 
 const schema = z.object({
   name:     z.string().min(2, "Mínimo 2 caracteres"),
@@ -50,10 +52,27 @@ function RegisterForm() {
 
 
   // ── Email / senha ───────────────────────────────────────────────────────
+  async function createCustomerDoc(uid: string, name: string, email: string) {
+    const businessId = process.env.NEXT_PUBLIC_BUSINESS_ID!;
+    await setDoc(doc(db, `businesses/${businessId}/customers/${uid}`), {
+      businessId,
+      name,
+      email,
+      status: "active",
+      creditBalance: 0,
+      xp: 0,
+      level: "Iniciante",
+      achievements: [],
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    }, { merge: true });
+  }
+
   async function onSubmit(data: FormData) {
     try {
       setError("");
-      await signUp(data.email, data.password);
+      const credential = await signUp(data.email, data.password);
+      await createCustomerDoc(credential.user.uid, data.name, data.email);
       router.push(redirectTo);
     } catch (err: unknown) {
       if (err instanceof Error && err.message.includes("email-already-in-use")) {
@@ -78,7 +97,11 @@ function RegisterForm() {
     window.addEventListener("focus", onPopupClose, { once: true });
 
     signInWithGoogle()
-      .then(onPopupClose)
+      .then(async (credential) => {
+        const u = credential.user;
+        await createCustomerDoc(u.uid, u.displayName ?? u.email ?? "Aluno", u.email ?? "");
+        onPopupClose();
+      })
       .catch((err: unknown) => {
         const code = (err as { code?: string })?.code ?? "";
         if (code === "auth/popup-blocked") {
