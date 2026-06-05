@@ -1,0 +1,141 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Collection group: sessions ──────────────────────────────────────
+    // Leitura pública: a landing mostra os horários disponíveis sem login e
+    // o aluno consulta sem conhecer o businessId (query collectionGroup).
+    // Escrita continua governada pela regra aninhada em businesses/{id}/sessions.
+    match /{path=**}/sessions/{sessionId} {
+      allow read: if true;
+    }
+
+    // ── Collection group: reservations ──────────────────────────────────
+    // O aluno consulta as PRÓPRIAS reservas sem conhecer o businessId.
+    match /{path=**}/reservations/{reservationId} {
+      allow read: if request.auth != null
+                  && resource.data.customerId == request.auth.uid;
+    }
+
+    // ── Business ────────────────────────────────────────────────────────
+    // businessId === ownerUid (por design do sistema)
+    // Isso elimina o problema de resource == null em documentos que ainda
+    // não existem — não precisamos checar resource.data.ownerUid.
+    match /businesses/{businessId} {
+      allow read:   if request.auth != null
+                    && request.auth.uid == businessId;
+
+      allow create: if request.auth != null
+                    && request.auth.uid == businessId
+                    && request.resource.data.ownerUid == request.auth.uid;
+
+      allow update: if request.auth != null
+                    && resource.data.ownerUid == request.auth.uid;
+
+      allow delete: if false; // nunca deletar um negócio via cliente
+
+      // ── Customers ──────────────────────────────────────────────────
+      match /customers/{customerId} {
+        // Admin lê e escreve todos; aluno lê só o próprio perfil
+        allow read:  if request.auth != null
+                     && (request.auth.uid == businessId
+                         || request.auth.uid == customerId);
+        allow create, delete: if request.auth != null
+                              && request.auth.uid == businessId;
+        // Admin atualiza livremente; aluno pode gastar 1 crédito (reserva) ou
+        // receber 1 crédito de volta (cancelamento), sem tocar em outro campo.
+        allow update: if request.auth != null && (
+          request.auth.uid == businessId
+          || (
+            request.auth.uid == customerId
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['creditBalance', 'updatedAt'])
+            && (
+              (request.resource.data.creditBalance == resource.data.creditBalance - 1
+               && request.resource.data.creditBalance >= 0)
+              || request.resource.data.creditBalance == resource.data.creditBalance + 1
+            )
+          )
+        );
+      }
+
+      // ── Sessions ───────────────────────────────────────────────────
+      match /sessions/{sessionId} {
+        // Qualquer autenticado pode ver os horários disponíveis
+        allow read:   if request.auth != null;
+        // Só o admin cria/remove aulas
+        allow create, delete: if request.auth != null
+                              && request.auth.uid == businessId;
+        // Admin atualiza livremente; aluno pode incrementar 1 (reserva) ou
+        // decrementar 1 (cancelamento), nunca ultrapassar o máximo nem ficar negativo.
+        allow update: if request.auth != null && (
+          request.auth.uid == businessId
+          || (
+            request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['currentCapacity', 'updatedAt'])
+            && (
+              (request.resource.data.currentCapacity == resource.data.currentCapacity + 1
+               && request.resource.data.currentCapacity <= resource.data.maxCapacity)
+              || (request.resource.data.currentCapacity == resource.data.currentCapacity - 1
+                  && request.resource.data.currentCapacity >= 0)
+            )
+          )
+        );
+      }
+
+      // ── Reservations (horários reservados por aluno) ───────────────
+      match /reservations/{reservationId} {
+        // Admin vê todas; aluno vê as próprias
+        allow read:  if request.auth != null
+                     && (request.auth.uid == businessId
+                         || resource.data.customerId == request.auth.uid);
+        // Aluno cria a própria reserva; admin gerencia (confirmar, cancelar)
+        allow create: if request.auth != null
+                      && (request.auth.uid == businessId
+                          || request.resource.data.customerId == request.auth.uid);
+        // Aluno pode cancelar a própria reserva (só muda status → cancelled)
+        allow update: if request.auth != null && (
+          request.auth.uid == businessId
+          || (
+            resource.data.customerId == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+            && request.resource.data.status == 'cancelled'
+            && resource.data.status != 'cancelled'
+            && resource.data.status != 'completed'
+          )
+        );
+        allow delete: if request.auth != null
+                      && request.auth.uid == businessId;
+      }
+
+      // ── Progress Logs ──────────────────────────────────────────────
+      match /progress-logs/{logId} {
+        allow read:  if request.auth != null
+                     && (request.auth.uid == businessId
+                         || resource.data.customerId == request.auth.uid);
+        allow write: if request.auth != null
+                     && request.auth.uid == businessId;
+      }
+
+      // ── Payments ───────────────────────────────────────────────────
+      match /payments/{paymentId} {
+        allow read:  if request.auth != null
+                     && (request.auth.uid == businessId
+                         || resource.data.customerId == request.auth.uid);
+        allow create: if request.auth != null;
+        allow update: if request.auth != null
+                      && request.auth.uid == businessId;
+        allow delete: if false;
+      }
+
+      // ── Packages ───────────────────────────────────────────────────
+      match /packages/{packageId} {
+        // Qualquer autenticado vê os pacotes disponíveis
+        allow read:  if request.auth != null;
+        allow write: if request.auth != null
+                     && request.auth.uid == businessId;
+      }
+    }
+  }
+}

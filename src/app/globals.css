@@ -1,26 +1,373 @@
 @import "tailwindcss";
 
+/* ─── Partiu.life × Ivan Silva Surf School ───────────────────────────────
+   Colors extracted from logo:
+     Ocean teal  → #1a8a7a  (the water)
+     Sunset sky  → #d4622a  (the orange sky)
+     Sun gold    → #f5c030  (the sun circle)
+     Dark badge  → #0e0a05  (the outer ring)
+     Cream text  → #f5ede0  (logo lettering)
+   Typography: Abril Fatface (retro badge) + Karla (body)
+   ───────────────────────────────────────────────────────────────────── */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Ocean — from the logo's water */
+  --teal:       #1a8a7a;
+  --teal-mid:   #22a898;
+  --teal-light: #2ebfb5;
+  --teal-dim:   #0d5550;
+
+  /* Sunset sky — from the logo's orange area */
+  --sunset:     #d4622a;
+  --sunset-2:   #e87830;
+
+  /* Sun — from the logo's golden circle */
+  --gold:       #f5c030;
+  --gold-dim:   #8a6510;
+
+  /* Backgrounds — dark warm, like wet sand at night */
+  --bg:         #0e0a05;
+  --bg-2:       #181208;
+  --bg-3:       #22180e;
+  --bg-4:       #2c2014;
+
+  /* Text */
+  --text-1:     #f5ede0;   /* logo cream */
+  --text-2:     #9a7850;
+  --text-3:     #5a4228;
+
+  /* Borders */
+  --border:       rgba(26,138,122,0.13);
+  --border-lit:   rgba(26,138,122,0.4);
+  --border-warm:  rgba(212,98,42,0.3);
+
+  /* Cards */
+  --card-bg:    #181208;
+  --card-hover: #22180e;
+
+  --shadow: 0 2px 20px rgba(0,0,0,0.6);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ─── Base ─────────────────────────────────────────────────────────────── */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font-karla), 'Karla', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* Grain — analog texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+/* ─── Typography ────────────────────────────────────────────────────────── */
+
+.font-display {
+  font-family: var(--font-abril), 'Abril Fatface', Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* ─── Card ──────────────────────────────────────────────────────────────── */
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+
+.card-interactive {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  transition: background 0.18s, border-color 0.18s;
+  cursor: pointer;
+}
+.card-interactive:hover {
+  background: var(--card-hover);
+  border-color: var(--border-lit);
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────────────── */
+
+.btn-primary {
+  background: var(--teal);
+  color: var(--text-1);
+  font-family: var(--font-karla), sans-serif;
+  font-weight: 700;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.18s, transform 0.12s;
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--teal-mid);
+  box-shadow: 0 0 28px rgba(26,138,122,0.45);
+  transform: translateY(-1px);
+}
+.btn-primary:active:not(:disabled) { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-outline {
+  background: transparent;
+  color: var(--teal-light);
+  border: 1px solid var(--border-lit);
+  font-family: var(--font-karla), sans-serif;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-outline:hover:not(:disabled) { background: rgba(26,138,122,0.09); }
+
+/* ─── Input ─────────────────────────────────────────────────────────────── */
+
+.warm-input {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-1);
+  height: 44px;
+  padding: 0 14px;
+  width: 100%;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.warm-input::placeholder { color: var(--text-3); }
+.warm-input:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(26,138,122,0.15);
+}
+
+/* ─── Schedule slot ─────────────────────────────────────────────────────── */
+
+.slot-on {
+  background: rgba(26,138,122,0.1);
+  border: 1px solid rgba(26,138,122,0.3);
+  color: var(--teal-light);
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.13s, box-shadow 0.13s, transform 0.1s;
+}
+.slot-on:hover {
+  background: rgba(26,138,122,0.22);
+  box-shadow: 0 0 14px rgba(26,138,122,0.4);
+  transform: scale(1.06);
+}
+
+.slot-off {
+  background: rgba(255,255,255,0.015);
+  border: 1px solid rgba(255,255,255,0.03);
+  border-radius: 8px;
+}
+
+/* ─── Nav link ──────────────────────────────────────────────────────────── */
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-2);
+  text-decoration: none;
+  transition: background 0.14s, color 0.14s;
+  font-family: var(--font-karla), sans-serif;
+}
+.nav-link:hover { background: var(--bg-3); color: var(--text-1); }
+.nav-link.active {
+  background: rgba(26,138,122,0.1);
+  color: var(--teal-light);
+  border: 1px solid rgba(26,138,122,0.22);
+}
+
+/* ─── XP bar ────────────────────────────────────────────────────────────── */
+
+@keyframes xp-pulse {
+  0%,100% { box-shadow: 0 0 6px rgba(26,138,122,0.4); }
+  50%      { box-shadow: 0 0 18px rgba(26,138,122,0.7); }
+}
+.xp-fill {
+  background: linear-gradient(90deg, var(--teal-dim), var(--teal), var(--gold));
+  border-radius: 99px;
+  animation: xp-pulse 2.8s ease-in-out infinite;
+  transition: width 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ─── Logo badge ────────────────────────────────────────────────────────── */
+
+@keyframes logo-in {
+  from { opacity: 0; transform: scale(0.85) rotate(-4deg); }
+  to   { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+.logo-badge { animation: logo-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* Pulse ring behind logo */
+@keyframes ring-pulse {
+  0%   { transform: scale(1);    opacity: 0.5; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+.logo-ring-pulse {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--teal);
+  animation: ring-pulse 2.5s ease-out infinite;
+  pointer-events: none;
+}
+
+/* ─── Section label (badge style) ──────────────────────────────────────── */
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--teal-light);
+  background: rgba(26,138,122,0.1);
+  border: 1px solid rgba(26,138,122,0.22);
+  border-radius: 99px;
+  padding: 3px 10px;
+  font-family: var(--font-karla), sans-serif;
+}
+
+/* ─── Partiu.life badge ─────────────────────────────────────────────────── */
+
+.partiu-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-3);
+  text-decoration: none;
+  letter-spacing: 0.03em;
+  transition: border-color 0.15s, color 0.15s;
+  font-family: var(--font-karla), sans-serif;
+}
+.partiu-badge:hover {
+  border-color: var(--border-lit);
+  color: var(--teal-light);
+}
+
+/* ─── Admin shell (responsivo) ──────────────────────────────────────────── */
+
+.admin-shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+.admin-main {
+  flex: 1;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+/* Top bar — só aparece no mobile */
+.admin-topbar {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  height: 56px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Overlay escuro atrás do drawer mobile */
+.admin-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(2px);
+  animation: admin-fade 0.2s ease both;
+}
+@keyframes admin-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Sidebar */
+.admin-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--bg-2);
+  border-right: 1px solid var(--border);
+}
+.admin-close { display: none; }
+
+/* ── Mobile: < 860px ──────────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .admin-shell {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+  .admin-main { overflow-y: visible; }
+
+  .admin-topbar { display: flex; }
+
+  .admin-overlay { display: block; }
+
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 40px rgba(0,0,0,0.6);
+  }
+  .admin-sidebar.open { transform: translateX(0); }
+  .admin-close { display: flex; }
+}
+
+@keyframes admin-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── Page enter ────────────────────────────────────────────────────────── */
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.rise   { animation: rise 0.5s ease both; }
+.rise-2 { animation: rise 0.5s 0.09s ease both; }
+.rise-3 { animation: rise 0.5s 0.18s ease both; }
+.rise-4 { animation: rise 0.5s 0.27s ease both; }
