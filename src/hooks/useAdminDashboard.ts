@@ -66,9 +66,20 @@ export function useAdminDashboard(businessId: string | null | undefined): Dashbo
         const { start: weekStart, end: weekEnd } = weekBounds();
         const inThisWeek = (dateStr: string) => dateStr >= weekStart && dateStr <= weekEnd;
 
-        // ── Sessões desta semana (não canceladas, não bloqueadas) ──────────
+        // IDs de sessões com pelo menos 1 reserva ativa
+        const sessionIdsWithReservations = new Set(
+          reservations
+            .filter((r: Reservation) => r.status !== "cancelled")
+            .map((r: Reservation) => r.sessionId)
+        );
+
+        // ── Sessões desta semana com pelo menos 1 aluno inscrito ───────────
         const weekSessions = sessions.filter(
-          (s) => inThisWeek(s.date) && s.status !== "cancelled" && s.status !== "blocked",
+          (s) =>
+            inThisWeek(s.date) &&
+            s.status !== "cancelled" &&
+            s.status !== "blocked" &&
+            sessionIdsWithReservations.has(s.id),
         );
 
         // ── Próximas aulas (hoje em diante, com vagas ou lotadas) ─────────
