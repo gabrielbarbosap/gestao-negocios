@@ -40,13 +40,26 @@ export async function POST(req: NextRequest) {
       updatedAt: FieldValue.serverTimestamp(),
     }, { merge: true });
 
+  // Busca nome do cliente para exibição no dashboard
+  const customerSnap = await adminDb
+    .doc(`businesses/${businessId}/customers/${customerId}`)
+    .get();
+  const customerName = customerSnap.exists ? (customerSnap.data()?.name ?? "Aluno") : "Aluno";
+
+  const packageLabels: Record<number, string> = { 1: "Aula avulsa", 4: "Pacote 4 aulas", 8: "Pacote 8 aulas" };
+  const description = packageLabels[creditsNum] ?? `${creditsNum} crédito${creditsNum > 1 ? "s" : ""}`;
+
   await adminDb.collection(`businesses/${businessId}/payments`).add({
     customerId,
+    customerName,
     businessId,
     stripeSessionId: session.id,
-    credits: creditsNum,
-    amountTotal: session.amount_total,
+    creditsGranted: creditsNum,
+    amount: (session.amount_total ?? 0) / 100,   // converte centavos → reais
     status: "approved",
+    method: "credit_card",
+    type: "package",
+    description,
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   });

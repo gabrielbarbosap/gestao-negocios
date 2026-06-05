@@ -70,13 +70,21 @@ export function useAdminDashboard(businessId: string | null | undefined): Dashbo
           .filter((s) => s.date >= todayStr && s.status !== "cancelled")
           .slice(0, 5);
 
-        // Faturamento da semana (pagamentos aprovados criados nesta semana)
+        // Faturamento da semana — suporta campo legado amountTotal (centavos) e amount (reais)
         const revenueThisWeek = approvedPayments
           .filter((p) => {
             const d = p.createdAt?.toDate?.();
             return d ? isWithinInterval(d, { start: weekStart, end: weekEnd }) : false;
           })
-          .reduce((sum, p) => sum + (p.amount ?? 0), 0);
+          .reduce((sum, p) => {
+            const raw = p as Record<string, unknown>;
+            const amount = typeof p.amount === "number"
+              ? p.amount
+              : typeof raw.amountTotal === "number"
+                ? (raw.amountTotal as number) / 100
+                : 0;
+            return sum + amount;
+          }, 0);
 
         // Ocupação média desta semana
         const occRates = weekSessions
