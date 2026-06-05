@@ -90,6 +90,7 @@ export default function StudentAgendaPage() {
  .filter((x) => x.id === sessionId || x.currentCapacity < x.maxCapacity),
  );
  setPending(null);
+ router.push("/aluno");
  }
 
  return (

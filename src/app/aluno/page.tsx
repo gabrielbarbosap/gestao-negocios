@@ -9,6 +9,17 @@ import { getLocation } from "@/constants/locations";
 import { formatTime } from "@/lib/utils";
 import type { Reservation } from "@/types/reservation";
 
+// Permite cancelar só se a aula ainda não aconteceu
+function canCancel(r: Reservation): boolean {
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  const nowTime = now.toTimeString().slice(0, 5); // HH:MM
+  if (r.status === 'completed') return false;
+  if (r.date > todayStr) return true;
+  if (r.date === todayStr) return r.startTime > nowTime;
+  return false;
+}
+
 export default function StudentHomePage() {
  const { user, reservations, loading, refresh } = useStudentReservations();
  const todayStr = new Date().toISOString().slice(0, 10);
@@ -122,7 +133,7 @@ function ReservationCard({ r, past, onCancel }: { r: Reservation; past?: boolean
  Pagar na aula
  </span>
  )}
- {!past && onCancel && !confirming && (
+ {!past && canCancel(r) && onCancel && !confirming && (
  <button
  onClick={() => setConfirming(true)}
  style={{ background: "none", border: "none", cursor: "pointer", fontSize: "11px", color: "var(--text-3)", padding: "2px 0", display: "flex", alignItems: "center", gap: "3px" }}

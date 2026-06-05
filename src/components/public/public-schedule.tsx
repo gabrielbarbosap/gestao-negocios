@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CaretLeft, CaretRight, CircleNotch, Check, MapPin, Clock, Ticket, Wallet, X, UserCircle } from "@phosphor-icons/react";
 import { useAuthStore } from "@/store/auth";
@@ -25,6 +26,7 @@ function mondayOf(d: Date): Date {
 }
 
 export function PublicSchedule() {
+  const router = useRouter();
   useAuth();
   const user = useAuthStore((s) => s.user);
   const authLoading = useAuthStore((s) => s.loading);
@@ -119,6 +121,7 @@ export function PublicSchedule() {
         .filter((x) => x.id !== sessionId || x.currentCapacity < x.maxCapacity),
     );
     setPending(null);
+    router.push("/aluno");
   }
 
   return (
