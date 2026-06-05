@@ -10,6 +10,7 @@ export interface Customer {
   name: string;
   email: string;
   phone?: string;
+  birthDate?: string;  // "YYYY-MM-DD"
   photoUrl?: string;
   status: CustomerStatus;
   creditBalance: number;

@@ -43,8 +43,9 @@ service cloud.firestore {
                          || request.auth.uid == customerId);
         allow create, delete: if request.auth != null
                               && request.auth.uid == businessId;
-        // Admin atualiza livremente; aluno pode gastar 1 crédito (reserva) ou
-        // receber 1 crédito de volta (cancelamento), sem tocar em outro campo.
+        // Admin atualiza livremente; aluno pode:
+        //   1. Gastar/receber crédito (reserva/cancelamento)
+        //   2. Atualizar o próprio perfil (phone, birthDate, name)
         allow update: if request.auth != null && (
           request.auth.uid == businessId
           || (
@@ -56,6 +57,11 @@ service cloud.firestore {
                && request.resource.data.creditBalance >= 0)
               || request.resource.data.creditBalance == resource.data.creditBalance + 1
             )
+          )
+          || (
+            request.auth.uid == customerId
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['phone', 'birthDate', 'name', 'updatedAt'])
           )
         );
       }
