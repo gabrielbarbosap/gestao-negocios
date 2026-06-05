@@ -27,7 +27,7 @@ export default function AdminDashboard() {
   });
 
   const stats: { label: string; value: string; icon: typeof CalendarDots; accent: string; note?: string }[] = [
-    { label: "Aulas esta semana",  value: String(d.sessionsThisWeek),      icon: CalendarDots, accent: "var(--teal-light)" },
+    { label: "Reservas esta semana",  value: String(d.sessionsThisWeek),      icon: CalendarDots, accent: "var(--teal-light)" },
     { label: "Alunos ativos",      value: String(d.activeStudents),         icon: Users,        accent: "var(--gold)" },
     { label: "Receita bruta",      value: formatCurrency(d.revenueTotal),   icon: Money,        accent: "var(--teal-mid)", note: "Sem descontar taxas Stripe (~2,99% + R$0,39/venda)" },
     { label: "Ocupação média",     value: `${d.avgOccupancy}%`,             icon: TrendUp,      accent: "var(--sunset-2)" },
