@@ -208,7 +208,7 @@ function UpcomingRow({ s }: { s: Session }) {
 }
 
 function PaymentRow({ p, first }: { p: Payment; first: boolean }) {
-  const raw = p as Record<string, unknown>;
+  const raw = p as unknown as Record<string, unknown>;
   const amount = typeof p.amount === "number"
     ? p.amount
     : typeof raw.amountTotal === "number" ? (raw.amountTotal as number) / 100 : 0;
