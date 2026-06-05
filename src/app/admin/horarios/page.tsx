@@ -192,11 +192,12 @@ export default function HorariosPage() {
  </div>
  <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
  <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12.5px", color: "var(--text-2)", fontWeight: 600 }}>
- <UsersIcon size={14} /> Vagas
+ <UsersIcon size={14} /> Vagas por horário
  <input type="number" min={1} max={50} value={capacity}
  onChange={(e) => { setCapacity(Math.max(1, Number(e.target.value) || 1)); setDirty(true); }}
  style={{ width: "58px", height: "34px", textAlign: "center", background: "var(--bg-3)", border: "1px solid var(--border)", borderRadius: "8px", color: "var(--text-1)", fontFamily: "inherit", fontSize: "13px" }} />
  </label>
+ <span style={{ fontSize: "10.5px", color: "var(--text-3)", display: "block", marginTop: "2px" }}>Nº de professores/instrutores disponíveis por aula</span>
  <button onClick={() => setWeek(true)} className="hr-action"><Checks size={14} /> Liberar semana</button>
  <button onClick={() => setWeek(false)} className="hr-action"><Eraser size={14} /> Limpar</button>
  </div>
