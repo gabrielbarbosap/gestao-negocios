@@ -4,10 +4,13 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AdminSidebar } from "@/components/layout/admin-sidebar";
 import { useAuth, isAdminUser } from "@/hooks/useAuth";
+import { useAuthStore } from "@/store/auth";
 import { CircleNotch } from "@phosphor-icons/react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  useAuth(); // garante que o listener está rodando
+  const user = useAuthStore((s) => s.user);
+  const loading = useAuthStore((s) => s.loading);
   const router = useRouter();
 
   useEffect(() => {

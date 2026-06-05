@@ -5,10 +5,13 @@ import { useRouter } from "next/navigation";
 import { StudentSidebarNav, StudentBottomNav } from "@/components/layout/student-nav";
 import { StudentHeader } from "@/components/layout/student-header";
 import { useAuth, isAdminUser } from "@/hooks/useAuth";
+import { useAuthStore } from "@/store/auth";
 import { CircleNotch } from "@phosphor-icons/react";
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  useAuth(); // garante que o listener está rodando
+  const user = useAuthStore((s) => s.user);
+  const loading = useAuthStore((s) => s.loading);
   const router = useRouter();
 
   useEffect(() => {

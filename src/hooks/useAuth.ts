@@ -44,41 +44,40 @@ async function ensureAdminBusiness(user: User) {
   });
 }
 
-export function useAuth() {
-  const { setUser, setRole, setLoading } = useAuthStore();
+// Listener inicializado apenas uma vez em todo o app
+let authListenerStarted = false;
 
-  useEffect(() => {
-    setLoading(true);
+function startAuthListener() {
+  if (authListenerStarted) return;
+  authListenerStarted = true;
 
-    // Aguarda o Firebase terminar de ler do storage antes de qualquer decisão.
-    // Sem isso, onAuthStateChanged dispara null antes do usuário ser restaurado
-    // do IndexedDB, fazendo guards de rota redirecionarem prematuramente.
-    let mounted = true;
-    auth.authStateReady().then(() => {
-      if (!mounted) return;
-      const unsubscribe = onAuthChange(async (user) => {
-        if (!mounted) return;
-        setUser(user);
+  const { setUser, setRole, setLoading } = useAuthStore.getState();
+  setLoading(true);
 
-        if (user) {
-          if (isAdminUser(user)) {
-            setRole("admin");
-            await ensureAdminBusiness(user).catch(console.error);
-          } else {
-            setRole("student");
-          }
+  auth.authStateReady().then(() => {
+    onAuthChange(async (user) => {
+      useAuthStore.getState().setUser(user);
+
+      if (user) {
+        if (isAdminUser(user)) {
+          useAuthStore.getState().setRole("admin");
+          await ensureAdminBusiness(user).catch(console.error);
         } else {
-          setRole(null);
+          useAuthStore.getState().setRole("student");
         }
+      } else {
+        useAuthStore.getState().setRole(null);
+      }
 
-        setLoading(false);
-      });
-
-      return () => unsubscribe();
+      useAuthStore.getState().setLoading(false);
     });
+  });
+}
 
-    return () => { mounted = false; };
-  }, [setUser, setRole, setLoading]);
+export function useAuth() {
+  useEffect(() => {
+    startAuthListener();
+  }, []);
 
   const { user, role, loading } = useAuthStore();
   return { user, role, loading, isAdmin: isAdminUser(user) };
