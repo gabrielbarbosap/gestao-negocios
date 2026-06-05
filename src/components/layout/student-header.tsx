@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useAuthStore } from "@/store/auth";
 import { logout } from "@/lib/firebase/auth";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut } from "lucide-react";
+import { SignOut } from "@phosphor-icons/react";
 
 export function StudentHeader() {
   useAuth();

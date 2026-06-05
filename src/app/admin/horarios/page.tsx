@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Clock, ChevronLeft, ChevronRight, Check, Loader2, Save,
-  CheckCheck, Eraser, Users as UsersIcon,
-} from "lucide-react";
+  Clock, CaretLeft, CaretRight, Check, CircleNotch, FloppyDisk,
+  Checks, Eraser, Users as UsersIcon,
+} from "@phosphor-icons/react";
 import { useBusinessId } from "@/hooks/useBusinessId";
 import { LOCATIONS, type LocationId } from "@/constants/locations";
 import { HOURS, DEFAULT_CAPACITY, listSessions, saveWeekGrid } from "@/lib/firebase/sessions";
@@ -186,9 +186,9 @@ export default function HorariosPage() {
       {/* navegação de semana + ações */}
       <div className="card rise-2" style={{ padding: "12px 16px", marginBottom: "16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <button onClick={() => shiftWeek(-1)} className="hr-navbtn" disabled={atCurrentWeek} aria-label="Semana anterior"><ChevronLeft size={18} /></button>
+          <button onClick={() => shiftWeek(-1)} className="hr-navbtn" disabled={atCurrentWeek} aria-label="Semana anterior"><CaretLeft size={18} /></button>
           <span className="font-display" style={{ fontSize: "1.05rem", color: "var(--text-1)", minWidth: "140px", textAlign: "center" }}>{weekLabel}</span>
-          <button onClick={() => shiftWeek(1)} className="hr-navbtn" aria-label="Próxima semana"><ChevronRight size={18} /></button>
+          <button onClick={() => shiftWeek(1)} className="hr-navbtn" aria-label="Próxima semana"><CaretRight size={18} /></button>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
           <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12.5px", color: "var(--text-2)", fontWeight: 600 }}>
@@ -197,7 +197,7 @@ export default function HorariosPage() {
               onChange={(e) => { setCapacity(Math.max(1, Number(e.target.value) || 1)); setDirty(true); }}
               style={{ width: "58px", height: "34px", textAlign: "center", background: "var(--bg-3)", border: "1px solid var(--border)", borderRadius: "8px", color: "var(--text-1)", fontFamily: "inherit", fontSize: "13px" }} />
           </label>
-          <button onClick={() => setWeek(true)} className="hr-action"><CheckCheck size={14} /> Liberar semana</button>
+          <button onClick={() => setWeek(true)} className="hr-action"><Checks size={14} /> Liberar semana</button>
           <button onClick={() => setWeek(false)} className="hr-action"><Eraser size={14} /> Limpar</button>
         </div>
       </div>
@@ -205,7 +205,7 @@ export default function HorariosPage() {
       {/* grade */}
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", padding: "60px", color: "var(--text-3)" }}>
-          <Loader2 size={26} className="admin-spin" />
+          <CircleNotch size={26} className="ph-spin" />
         </div>
       ) : (
         <div className="card rise-3" style={{ padding: "16px", overflowX: "auto" }}>
@@ -251,7 +251,7 @@ export default function HorariosPage() {
           <strong style={{ color: "var(--teal-light)" }}>{totalSemana}</strong> horários liberados nesta semana
         </span>
         <button onClick={handleSave} disabled={saving || !dirty} className="btn-primary" style={{ height: "44px", padding: "0 22px", display: "flex", alignItems: "center", gap: "8px", fontSize: "14px" }}>
-          {saving ? <Loader2 size={17} className="admin-spin" /> : saved ? <Check size={17} /> : <Save size={17} />}
+          {saving ? <CircleNotch size={17} className="ph-spin" /> : saved ? <Check size={17} /> : <Save size={17} />}
           {saving ? "Salvando..." : saved ? "Salvo!" : "Salvar semana"}
         </button>
       </div>
@@ -259,8 +259,8 @@ export default function HorariosPage() {
       <style>{`
         .admin-page { padding: 32px 28px 120px; }
         .admin-title { font-size: 2.2rem; }
-        .admin-spin { animation: admin-spin 0.9s linear infinite; }
-        @keyframes admin-spin { to { transform: rotate(360deg); } }
+        .ph-spin { animation: ph-spin 0.9s linear infinite; }
+        @keyframes ph-spin { to { transform: rotate(360deg); } }
 
         .hr-navbtn, .hr-action {
           display: inline-flex; align-items: center; gap: 6px;

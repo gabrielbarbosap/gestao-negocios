@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Zap, Star, Package } from "lucide-react";
+import { CircleNotch, Lightning, Star, Package } from "@phosphor-icons/react";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useAuthStore } from "@/store/auth";
 
@@ -12,7 +12,7 @@ const PACKAGES = [
     credits: 1,
     price: 100,
     pricePerClass: 100,
-    icon: Zap,
+    icon: Lightning,
     highlight: false,
     tag: null,
   },
@@ -133,7 +133,7 @@ export function PublicPackages() {
                 opacity: loading && !isLoading ? 0.5 : 1,
               }}
             >
-              {isLoading && <Loader2 size={13} style={{ animation: "spin 0.9s linear infinite" }} />}
+              {isLoading && <CircleNotch size={13} style={{ animation: "spin 0.9s linear infinite" }} />}
               {isLoading ? "Aguarde..." : "Comprar"}
             </button>
           </div>

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { CalendarDays, Clock, MapPin, Loader2, CalendarPlus, Check, X } from "lucide-react";
+import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, CheckCircle, X } from "@phosphor-icons/react";
 import { useStudentReservations } from "@/hooks/useStudentReservations";
 import { cancelReservation } from "@/lib/firebase/reservations";
 import { getLocation } from "@/constants/locations";
@@ -41,14 +41,14 @@ export default function StudentHomePage() {
 
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", padding: "48px", color: "var(--text-3)" }}>
-          <Loader2 size={24} className="stu-spin" />
+          <CircleNotch size={24} className="ph-spin" />
         </div>
       ) : (
         <>
           <h2 className="font-display" style={{ fontSize: "1.15rem", color: "var(--text-1)", marginBottom: "12px" }}>Próximas aulas</h2>
           {proximas.length === 0 ? (
             <div className="card" style={{ padding: "32px 22px", textAlign: "center", marginBottom: "26px" }}>
-              <CalendarDays size={28} style={{ color: "var(--text-3)", margin: "0 auto 10px" }} />
+              <CalendarDots size={28} style={{ color: "var(--text-3)", margin: "0 auto 10px" }} />
               <p style={{ fontSize: "13.5px", color: "var(--text-2)" }}>Você ainda não tem aulas agendadas.</p>
               <Link href="/aluno/agenda" className="btn-outline" style={{ display: "inline-block", marginTop: "14px", padding: "9px 18px", fontSize: "13px" }}>Ver horários disponíveis</Link>
             </div>
@@ -70,8 +70,8 @@ export default function StudentHomePage() {
       )}
 
       <style>{`
-        .stu-spin { animation: stu-spin 0.9s linear infinite; }
-        @keyframes stu-spin { to { transform: rotate(360deg); } }
+        .ph-spin { animation: ph-spin 0.9s linear infinite; }
+        @keyframes ph-spin { to { transform: rotate(360deg); } }
       `}</style>
     </div>
   );
@@ -152,7 +152,7 @@ function ReservationCard({ r, past, onCancel }: { r: Reservation; past?: boolean
               disabled={cancelling}
               style={{ fontSize: "12px", padding: "5px 12px", height: "auto", background: "var(--red, #e53e3e)", color: "#fff", border: "none", borderRadius: "8px", cursor: cancelling ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: "5px" }}
             >
-              {cancelling ? <Loader2 size={12} className="stu-spin" /> : null}
+              {cancelling ? <CircleNotch size={12} className="ph-spin" /> : null}
               Sim, cancelar
             </button>
           </div>

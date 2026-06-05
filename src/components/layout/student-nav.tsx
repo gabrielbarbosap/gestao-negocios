@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Trophy, TrendingUp, Home, Package } from "lucide-react";
+import { House, CalendarDots, Trophy, TrendUp, Package, Icon as PhosphorIcon } from "@phosphor-icons/react";
 
 const NAV = [
-  { label: "Início",      href: "/aluno",           icon: Home         },
-  { label: "Agendar",     href: "/aluno/agenda",     icon: CalendarDays },
+  { label: "Início",      href: "/aluno",           icon: House        },
+  { label: "Agendar",     href: "/aluno/agenda",     icon: CalendarDots },
   { label: "Pacotes",     href: "/aluno/pacotes",    icon: Package      },
-  { label: "Evolução",    href: "/aluno/evolucao",   icon: TrendingUp   },
+  { label: "Evolução",    href: "/aluno/evolucao",   icon: TrendUp      },
   { label: "Conquistas",  href: "/aluno/conquistas", icon: Trophy       },
 ];
 

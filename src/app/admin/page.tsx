@@ -1,9 +1,9 @@
 "use client";
 
 import {
-  CalendarDays, Users, DollarSign, TrendingUp,
-  Waves, ArrowUpRight, Clock, MapPin, Plus, Sparkles, Loader2,
-} from "lucide-react";
+  CalendarDots, Users, Money, TrendUp,
+  Waves, ArrowUpRight, Clock, MapPin, Plus, Sparkle, CircleNotch,
+} from "@phosphor-icons/react";
 import { useBusinessId } from "@/hooks/useBusinessId";
 import { useAdminDashboard } from "@/hooks/useAdminDashboard";
 import { getLocation } from "@/constants/locations";
@@ -20,10 +20,10 @@ export default function AdminDashboard() {
   });
 
   const stats = [
-    { label: "Aulas esta semana", value: String(d.sessionsThisWeek),         icon: CalendarDays, accent: "var(--teal-light)" },
+    { label: "Aulas esta semana", value: String(d.sessionsThisWeek),         icon: CalendarDots, accent: "var(--teal-light)" },
     { label: "Alunos ativos",     value: String(d.activeStudents),           icon: Users,        accent: "var(--gold)"       },
-    { label: "Faturamento",       value: formatCurrency(d.revenueThisWeek),  icon: DollarSign,   accent: "var(--teal-mid)"   },
-    { label: "Ocupação média",    value: `${d.avgOccupancy}%`,               icon: TrendingUp,   accent: "var(--sunset-2)"   },
+    { label: "Faturamento",       value: formatCurrency(d.revenueThisWeek),  icon: Money,   accent: "var(--teal-mid)"   },
+    { label: "Ocupação média",    value: `${d.avgOccupancy}%`,               icon: TrendUp,   accent: "var(--sunset-2)"   },
   ];
 
   return (
@@ -67,7 +67,7 @@ export default function AdminDashboard() {
               </div>
             </div>
             <p className="font-display" style={{ fontSize: "2.1rem", color: "var(--text-1)", marginTop: "16px", lineHeight: 1, minHeight: "2.1rem" }}>
-              {d.loading ? <Loader2 size={22} className="admin-spin" style={{ color: "var(--text-3)" }} /> : value}
+              {d.loading ? <CircleNotch size={22} className="ph-spin" style={{ color: "var(--text-3)" }} /> : value}
             </p>
             <p style={{ fontSize: "12px", color: "var(--text-2)", marginTop: "6px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
               {label}
@@ -85,7 +85,7 @@ export default function AdminDashboard() {
               <h3 className="font-display" style={{ fontSize: "1.25rem", color: "var(--text-1)" }}>Ocupação da semana</h3>
               <p style={{ fontSize: "12px", color: "var(--text-2)", marginTop: "2px" }}>Taxa de preenchimento das aulas</p>
             </div>
-            <Sparkles size={16} style={{ color: "var(--gold)" }} />
+            <Sparkle size={16} style={{ color: "var(--gold)" }} />
           </div>
 
           {d.loading ? (
@@ -154,8 +154,8 @@ export default function AdminDashboard() {
       <style>{`
         .admin-page { padding: 32px 28px 60px; }
         .admin-title { font-size: 2.4rem; }
-        .admin-spin { animation: admin-spin 0.9s linear infinite; }
-        @keyframes admin-spin { to { transform: rotate(360deg); } }
+        .ph-spin { animation: ph-spin 0.9s linear infinite; }
+        @keyframes ph-spin { to { transform: rotate(360deg); } }
         @media (max-width: 860px) { .admin-grid { grid-template-columns: 1fr !important; } }
         @media (max-width: 640px) {
           .admin-page { padding: 20px 16px 48px; }

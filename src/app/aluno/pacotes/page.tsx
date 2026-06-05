@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Loader2, Star, Zap, Package } from "lucide-react";
+import { CircleNotch, Star, Lightning, Package } from "@phosphor-icons/react";
 import { useStudentReservations } from "@/hooks/useStudentReservations";
 
 const PACKAGES = [
@@ -12,7 +12,7 @@ const PACKAGES = [
     credits: 1,
     price: 100,
     pricePerClass: 100,
-    icon: Zap,
+    icon: Lightning,
     highlight: false,
     badge: null,
   },
@@ -148,7 +148,7 @@ function PacotesContent() {
                     className={pkg.highlight ? "btn-primary" : "btn-outline"}
                     style={{ fontSize: "13px", padding: "8px 18px", height: "auto", display: "flex", alignItems: "center", gap: "6px", opacity: loading && !isLoading ? 0.5 : 1 }}
                   >
-                    {isLoading ? <Loader2 size={14} className="stu-spin" /> : null}
+                    {isLoading ? <CircleNotch size={14} className="ph-spin" /> : null}
                     {isLoading ? "Aguarde..." : "Comprar"}
                   </button>
                 </div>
@@ -167,8 +167,8 @@ function PacotesContent() {
       </div>
 
       <style>{`
-        .stu-spin { animation: stu-spin 0.9s linear infinite; }
-        @keyframes stu-spin { to { transform: rotate(360deg); } }
+        .ph-spin { animation: ph-spin 0.9s linear infinite; }
+        @keyframes ph-spin { to { transform: rotate(360deg); } }
       `}</style>
     </div>
   );

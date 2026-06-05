@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { ChevronLeft, ChevronRight, Loader2, Check, Waves, X, MapPin, Clock, Ticket, Wallet } from "lucide-react";
+import { CaretLeft, CaretRight, CircleNotch, Check, Waves, X, MapPin, Clock, Ticket, Wallet } from "@phosphor-icons/react";
 import type { User } from "firebase/auth";
 import { useStudentAgenda } from "@/hooks/useStudentAgenda";
 import { createReservation } from "@/lib/firebase/reservations";
@@ -136,9 +136,9 @@ export default function StudentAgendaPage() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <button onClick={() => shiftWeek(-1)} className="ag-nav" disabled={atCurrentWeek} aria-label="Semana anterior"><ChevronLeft size={16} /></button>
+          <button onClick={() => shiftWeek(-1)} className="ag-nav" disabled={atCurrentWeek} aria-label="Semana anterior"><CaretLeft size={16} /></button>
           <span className="font-display" style={{ fontSize: "0.95rem", color: "var(--text-1)", minWidth: "118px", textAlign: "center" }}>{weekLabel}</span>
-          <button onClick={() => shiftWeek(1)} className="ag-nav" aria-label="Próxima semana"><ChevronRight size={16} /></button>
+          <button onClick={() => shiftWeek(1)} className="ag-nav" aria-label="Próxima semana"><CaretRight size={16} /></button>
         </div>
       </div>
 
@@ -152,7 +152,7 @@ export default function StudentAgendaPage() {
       <div className="card" style={{ overflowX: "auto" }}>
         {loading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: "48px", color: "var(--text-3)" }}>
-            <Loader2 size={24} className="ag-spin" />
+            <CircleNotch size={24} className="ph-spin" />
           </div>
         ) : activeHours.length === 0 ? (
           <p style={{ padding: "32px 20px", textAlign: "center", fontSize: "13px", color: "var(--text-3)" }}>
@@ -230,8 +230,8 @@ export default function StudentAgendaPage() {
         .ag-nav { display: inline-flex; align-items: center; justify-content: center; background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px; color: var(--text-2); cursor: pointer; padding: 7px; transition: all 0.14s; }
         .ag-nav:hover:not(:disabled) { color: var(--teal-light); border-color: var(--border-lit); }
         .ag-nav:disabled { opacity: 0.35; cursor: not-allowed; }
-        .ag-spin { animation: ag-spin 0.9s linear infinite; }
-        @keyframes ag-spin { to { transform: rotate(360deg); } }
+        .ph-spin { animation: ph-spin 0.9s linear infinite; }
+        @keyframes ph-spin { to { transform: rotate(360deg); } }
         .ag-overlay { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 20px; animation: ag-fade 0.18s ease both; }
         @keyframes ag-fade { from { opacity: 0; } to { opacity: 1; } }
         .ag-modal { width: 100%; max-width: 380px; animation: ag-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both; }
@@ -304,7 +304,7 @@ function BookingModal({ session, user, onClose, onConfirmed }: {
         <div className="card" style={{ padding: "14px 16px", marginBottom: "16px", background: "var(--bg-3)", display: "flex", alignItems: "center", gap: "12px" }}>
           <Ticket size={20} style={{ color: hasCredits ? "var(--teal-light)" : "var(--text-3)" }} />
           {credits === null ? (
-            <Loader2 size={16} className="ag-spin" style={{ color: "var(--text-3)" }} />
+            <CircleNotch size={16} className="ph-spin" style={{ color: "var(--text-3)" }} />
           ) : (
             <div>
               <p style={{ fontSize: "13px", color: "var(--text-1)", fontWeight: 700 }}>
@@ -330,7 +330,7 @@ function BookingModal({ session, user, onClose, onConfirmed }: {
         <div style={{ display: "flex", gap: "10px" }}>
           <button onClick={onClose} className="btn-outline" style={{ flex: 1, height: "44px", fontSize: "14px" }}>Cancelar</button>
           <button onClick={confirm} disabled={!canConfirm || saving} className="btn-primary" style={{ flex: 2, height: "44px", fontSize: "14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
-            {saving ? <Loader2 size={16} className="ag-spin" /> : <Check size={16} />}
+            {saving ? <CircleNotch size={16} className="ph-spin" /> : <Check size={16} />}
             {saving ? "Reservando..." : "Confirmar agendamento"}
           </button>
         </div>

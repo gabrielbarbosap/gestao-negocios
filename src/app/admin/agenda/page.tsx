@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 import {
-  CalendarDays, Clock, MapPin, Users, Loader2, CircleSlash, Ban,
-  ChevronLeft, ChevronRight, CalendarCheck,
-} from "lucide-react";
+  CalendarDots, Clock, MapPin, Users, CircleNotch, ProhibitInset, Prohibit,
+  CaretLeft, CaretRight, CalendarCheck,
+} from "@phosphor-icons/react";
 import { useBusinessId } from "@/hooks/useBusinessId";
 import { useAdminAgenda } from "@/hooks/useAdminAgenda";
 import { getLocation } from "@/constants/locations";
@@ -56,7 +56,7 @@ export default function AgendaPage() {
     <div className="admin-page" style={{ maxWidth: "820px", margin: "0 auto" }}>
       <header className="rise" style={{ marginBottom: "20px" }}>
         <span className="section-label" style={{ marginBottom: "12px" }}>
-          <CalendarDays size={11} /> Agenda do dia
+          <CalendarDots size={11} /> Agenda do dia
         </span>
         <h1 className="font-display admin-title" style={{ color: "var(--text-1)", lineHeight: 1.05, marginTop: "12px" }}>
           Aulas agendadas
@@ -69,7 +69,7 @@ export default function AgendaPage() {
       {/* seletor de dia */}
       <div className="card rise-2" style={{ padding: "14px 16px", marginBottom: "18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <button onClick={() => shiftDay(-1)} className="ag-nav" aria-label="Dia anterior"><ChevronLeft size={18} /></button>
+          <button onClick={() => shiftDay(-1)} className="ag-nav" aria-label="Dia anterior"><CaretLeft size={18} /></button>
           <div style={{ textAlign: "center", minWidth: "190px" }}>
             <p className="font-display" style={{ fontSize: "1.15rem", color: "var(--text-1)", lineHeight: 1.1 }}>
               {DAY_NAMES[selected.getDay()]}
@@ -78,7 +78,7 @@ export default function AgendaPage() {
               {pad(selected.getDate())} de {MONTH_NAMES[selected.getMonth()]} de {selected.getFullYear()}
             </p>
           </div>
-          <button onClick={() => shiftDay(1)} className="ag-nav" aria-label="Próximo dia"><ChevronRight size={18} /></button>
+          <button onClick={() => shiftDay(1)} className="ag-nav" aria-label="Próximo dia"><CaretRight size={18} /></button>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
@@ -97,7 +97,7 @@ export default function AgendaPage() {
       {/* resumo */}
       {!loading && dayClasses.length > 0 && (
         <div className="rise-2" style={{ display: "flex", gap: "10px", marginBottom: "16px", flexWrap: "wrap" }}>
-          <Pill icon={<CalendarDays size={13} />} text={`${dayClasses.length} ${dayClasses.length === 1 ? "aula" : "aulas"}`} />
+          <Pill icon={<CalendarDots size={13} />} text={`${dayClasses.length} ${dayClasses.length === 1 ? "aula" : "aulas"}`} />
           <Pill icon={<Users size={13} />} text={`${totalAlunos} ${totalAlunos === 1 ? "aluno" : "alunos"}`} />
         </div>
       )}
@@ -110,11 +110,11 @@ export default function AgendaPage() {
 
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", padding: "60px", color: "var(--text-3)" }}>
-          <Loader2 size={26} className="ag-spin" />
+          <CircleNotch size={26} className="ph-spin" />
         </div>
       ) : dayClasses.length === 0 ? (
         <div className="card" style={{ padding: "48px 24px", textAlign: "center" }}>
-          <CircleSlash size={32} style={{ color: "var(--text-3)", margin: "0 auto 14px" }} />
+          <ProhibitInset size={32} style={{ color: "var(--text-3)", margin: "0 auto 14px" }} />
           <h3 className="font-display" style={{ fontSize: "1.3rem", color: "var(--text-1)" }}>Nenhuma aula neste dia</h3>
           <p style={{ fontSize: "13px", color: "var(--text-2)", marginTop: "6px" }}>
             Libere horários em “Horários” para abrir aulas neste dia.
@@ -131,8 +131,8 @@ export default function AgendaPage() {
       <style>{`
         .admin-page { padding: 32px 28px 60px; }
         .admin-title { font-size: 2.2rem; }
-        .ag-spin { animation: ag-spin 0.9s linear infinite; }
-        @keyframes ag-spin { to { transform: rotate(360deg); } }
+        .ph-spin { animation: ph-spin 0.9s linear infinite; }
+        @keyframes ph-spin { to { transform: rotate(360deg); } }
         .ag-nav, .ag-action { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px; color: var(--text-2); cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: 700; transition: all 0.14s; }
         .ag-nav { padding: 8px; }
         .ag-action { padding: 8px 12px; }
@@ -196,7 +196,7 @@ function ClassCard({ s, reservations }: { s: Session; reservations: Reservation[
         </p>
         {reservations.length === 0 ? (
           <p style={{ fontSize: "13px", color: "var(--text-2)", display: "flex", alignItems: "center", gap: "6px" }}>
-            <Ban size={13} /> Nenhum aluno inscrito ainda.
+            <Prohibit size={13} /> Nenhum aluno inscrito ainda.
           </p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>

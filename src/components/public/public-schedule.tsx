@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { CaretLeft, CaretRight, CircleNotch } from "@phosphor-icons/react";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { LOCATIONS, type LocationId } from "@/constants/locations";
 import { HOURS, fetchPublicAvailableSlots } from "@/lib/firebase/sessions";
@@ -114,11 +114,11 @@ export function PublicSchedule() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <button onClick={() => shiftWeek(-1)} className="ps-nav" disabled={atCurrentWeek} aria-label="Semana anterior"><ChevronLeft size={16} /></button>
+          <button onClick={() => shiftWeek(-1)} className="ps-nav" disabled={atCurrentWeek} aria-label="Semana anterior"><CaretLeft size={16} /></button>
           <span className="font-display" style={{ fontSize: "0.95rem", color: "var(--text-1)", minWidth: "118px", textAlign: "center" }}>
             {weekLabel()}
           </span>
-          <button onClick={() => shiftWeek(1)} className="ps-nav" aria-label="Próxima semana"><ChevronRight size={16} /></button>
+          <button onClick={() => shiftWeek(1)} className="ps-nav" aria-label="Próxima semana"><CaretRight size={16} /></button>
         </div>
       </div>
 
@@ -126,7 +126,7 @@ export function PublicSchedule() {
       <div className="card" style={{ overflowX: "auto" }}>
         {loading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: "44px", color: "var(--text-3)" }}>
-            <Loader2 size={22} className="ps-spin" />
+            <CircleNotch size={22} className="ph-spin" />
           </div>
         ) : activeHours.length === 0 ? (
           <p style={{ padding: "32px 20px", textAlign: "center", fontSize: "13px", color: "var(--text-3)" }}>
@@ -193,8 +193,8 @@ export function PublicSchedule() {
         .ps-nav { display: inline-flex; align-items: center; justify-content: center; background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px; color: var(--text-2); cursor: pointer; padding: 7px; transition: all 0.14s; }
         .ps-nav:hover:not(:disabled) { color: var(--teal-light); border-color: var(--border-lit); }
         .ps-nav:disabled { opacity: 0.35; cursor: not-allowed; }
-        .ps-spin { animation: ps-spin 0.9s linear infinite; }
-        @keyframes ps-spin { to { transform: rotate(360deg); } }
+        .ph-spin { animation: ph-spin 0.9s linear infinite; }
+        @keyframes ph-spin { to { transform: rotate(360deg); } }
       `}</style>
     </div>
   );

@@ -3,16 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Clock, Users, DollarSign, BarChart3, LayoutDashboard, Settings, LogOut, Menu, X } from "lucide-react";
+import { CalendarDots, Clock, Users, Money, ChartBar, SquaresFour, Gear, SignOut, List, X } from "@phosphor-icons/react";
 import { logout } from "@/lib/firebase/auth";
 
 const NAV = [
-  { label: "Dashboard",    href: "/admin",               icon: LayoutDashboard },
-  { label: "Agenda",       href: "/admin/agenda",        icon: CalendarDays    },
+  { label: "Dashboard",    href: "/admin",               icon: SquaresFour },
+  { label: "Agenda",       href: "/admin/agenda",        icon: CalendarDots    },
   { label: "Horários",     href: "/admin/horarios",      icon: Clock           },
   { label: "Alunos",       href: "/admin/alunos",        icon: Users           },
-  { label: "Financeiro",   href: "/admin/financeiro",    icon: DollarSign      },
-  { label: "Relatórios",   href: "/admin/relatorios",    icon: BarChart3       },
+  { label: "Financeiro",   href: "/admin/financeiro",    icon: Money      },
+  { label: "Relatórios",   href: "/admin/relatorios",    icon: ChartBar       },
   { label: "Configurações",href: "/admin/configuracoes", icon: Settings        },
 ];
 
@@ -49,7 +49,7 @@ export function AdminSidebar() {
         onMouseEnter={e => {(e.currentTarget as HTMLElement).style.color = "#f87171"; (e.currentTarget as HTMLElement).style.background = "rgba(248,113,113,0.06)";}}
         onMouseLeave={e => {(e.currentTarget as HTMLElement).style.color = ""; (e.currentTarget as HTMLElement).style.background = "";}}
       >
-        <LogOut size={15} style={{ flexShrink: 0 }} />
+        <SignOut size={15} style={{ flexShrink: 0 }} />
         Sair
       </button>
 
