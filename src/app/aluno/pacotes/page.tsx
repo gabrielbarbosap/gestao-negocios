@@ -1,48 +1,167 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/utils";
+"use client";
 
-const DEFAULT_PACKAGES = [
-  { id: "4", name: "Pacote 4 aulas", lessons: 4, price: 400 },
-  { id: "8", name: "Pacote 8 aulas", lessons: 8, price: 720 },
-  { id: "12", name: "Pacote 12 aulas", lessons: 12, price: 960 },
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { Loader2, Star, Zap, Package } from "lucide-react";
+import { useStudentReservations } from "@/hooks/useStudentReservations";
+
+const PACKAGES = [
+  {
+    priceId: "price_1Tf2aHCyFEmb0TbKWw4qUA2g",
+    name: "Aula Avulsa",
+    credits: 1,
+    price: 100,
+    pricePerClass: 100,
+    icon: Zap,
+    highlight: false,
+    badge: null,
+  },
+  {
+    priceId: "price_1Tf2afCyFEmb0TbKtjAGlrMl",
+    name: "Pacote 4 Aulas",
+    credits: 4,
+    price: 320,
+    pricePerClass: 80,
+    icon: Star,
+    highlight: true,
+    badge: "Mais recomendado",
+  },
+  {
+    priceId: "price_1Tf2bHCyFEmb0TbKD9RCE546",
+    name: "Pacote 8 Aulas",
+    credits: 8,
+    price: 640,
+    pricePerClass: 80,
+    icon: Package,
+    highlight: false,
+    badge: null,
+  },
 ];
 
 export default function PacotesPage() {
+  const { user } = useStudentReservations();
+  const searchParams = useSearchParams();
+  const [loading, setLoading] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("sucesso") === "1") setSuccess(true);
+  }, [searchParams]);
+
+  async function handleBuy(pkg: typeof PACKAGES[0]) {
+    if (!user) return;
+    setLoading(pkg.priceId);
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          priceId: pkg.priceId,
+          customerId: user.uid,
+          businessId: user.uid,
+          credits: pkg.credits,
+        }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(null);
+    }
+  }
+
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-slate-900">Pacotes</h1>
-        <p className="text-sm text-slate-500">Compre créditos de aulas</p>
-      </div>
+    <div className="rise" style={{ maxWidth: "520px" }}>
+      <header style={{ marginBottom: "22px" }}>
+        <h1 className="font-display" style={{ fontSize: "1.9rem", color: "var(--text-1)" }}>Pacotes de aulas</h1>
+        <p style={{ marginTop: "4px", fontSize: "13px", color: "var(--text-2)" }}>Compre créditos e agende quando quiser</p>
+      </header>
 
-      <div className="grid gap-4">
-        {DEFAULT_PACKAGES.map((pkg) => (
-          <Card key={pkg.id} className="flex items-center justify-between p-4">
-            <CardContent className="p-0 flex items-center justify-between w-full">
-              <div>
-                <p className="font-semibold text-slate-900">{pkg.name}</p>
-                <p className="text-sm text-slate-500">{pkg.lessons} créditos de aula</p>
-                <p className="text-lg font-bold text-sky-600 mt-1">{formatCurrency(pkg.price)}</p>
-                {pkg.lessons > 4 && (
-                  <p className="text-xs text-emerald-600">
-                    Economia de {formatCurrency(pkg.price - pkg.lessons * 100)} vs avulso
+      {success && (
+        <div style={{ background: "rgba(56,193,114,0.12)", border: "1px solid rgba(56,193,114,0.3)", borderRadius: "12px", padding: "14px 18px", marginBottom: "20px", fontSize: "13.5px", color: "#1a7a4a", fontWeight: 600 }}>
+          ✅ Pagamento confirmado! Seus créditos já estão disponíveis.
+        </div>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "14px", marginBottom: "28px" }}>
+        {PACKAGES.map((pkg) => {
+          const Icon = pkg.icon;
+          const isLoading = loading === pkg.priceId;
+          return (
+            <div
+              key={pkg.priceId}
+              className="card"
+              style={{
+                padding: "20px",
+                border: pkg.highlight ? "2px solid var(--teal-light)" : undefined,
+                position: "relative",
+                overflow: "visible",
+              }}
+            >
+              {pkg.badge && (
+                <div style={{
+                  position: "absolute", top: "-12px", left: "20px",
+                  background: "var(--teal-light)", color: "#fff",
+                  fontSize: "11px", fontWeight: 700, padding: "3px 12px",
+                  borderRadius: "99px", letterSpacing: "0.02em",
+                }}>
+                  {pkg.badge}
+                </div>
+              )}
+
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                  <div style={{
+                    width: "44px", height: "44px", borderRadius: "12px", flexShrink: 0,
+                    background: pkg.highlight ? "rgba(56,193,180,0.12)" : "var(--surface-2)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <Icon size={20} style={{ color: pkg.highlight ? "var(--teal-light)" : "var(--text-2)" }} />
+                  </div>
+                  <div>
+                    <p style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-1)" }}>{pkg.name}</p>
+                    <p style={{ fontSize: "12px", color: "var(--text-2)", marginTop: "2px" }}>{pkg.credits} crédito{pkg.credits > 1 ? "s" : ""} de aula</p>
+                    {pkg.credits >= 4 && (
+                      <p style={{ fontSize: "11.5px", color: "var(--teal-light)", fontWeight: 700, marginTop: "3px" }}>
+                        R$80/aula — economia de R${(pkg.credits * 100) - pkg.price}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px", flexShrink: 0 }}>
+                  <p className="font-display" style={{ fontSize: "1.35rem", color: "var(--text-1)", whiteSpace: "nowrap" }}>
+                    R$ {pkg.price.toLocaleString("pt-BR")}
                   </p>
-                )}
+                  <button
+                    onClick={() => handleBuy(pkg)}
+                    disabled={!!loading}
+                    className={pkg.highlight ? "btn-primary" : "btn-outline"}
+                    style={{ fontSize: "13px", padding: "8px 18px", height: "auto", display: "flex", alignItems: "center", gap: "6px", opacity: loading && !isLoading ? 0.5 : 1 }}
+                  >
+                    {isLoading ? <Loader2 size={14} className="stu-spin" /> : null}
+                    {isLoading ? "Aguarde..." : "Comprar"}
+                  </button>
+                </div>
               </div>
-              <Button>Comprar</Button>
-            </CardContent>
-          </Card>
-        ))}
+            </div>
+          );
+        })}
       </div>
 
-      <div className="mt-6 rounded-lg bg-sky-50 p-4">
-        <p className="text-sm font-medium text-sky-800">Como funcionam os créditos?</p>
-        <p className="text-sm text-sky-600 mt-1">
-          Após a compra, os créditos ficam disponíveis na sua conta e você pode agendar aulas
-          livremente nos horários liberados pelo instrutor.
+      <div style={{ background: "var(--surface-2)", borderRadius: "12px", padding: "16px 18px" }}>
+        <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-1)", marginBottom: "6px" }}>Como funcionam os créditos?</p>
+        <p style={{ fontSize: "12.5px", color: "var(--text-2)", lineHeight: 1.6 }}>
+          Após o pagamento, os créditos são adicionados automaticamente à sua conta.
+          Use-os para agendar aulas nos horários disponíveis. Se cancelar uma aula, o crédito é devolvido.
         </p>
       </div>
+
+      <style>{`
+        .stu-spin { animation: stu-spin 0.9s linear infinite; }
+        @keyframes stu-spin { to { transform: rotate(360deg); } }
+      `}</style>
     </div>
   );
 }
