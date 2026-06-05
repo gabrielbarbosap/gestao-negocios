@@ -33,7 +33,7 @@ export default function EvolucaoPage() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-700 transition-colors"
           >
-            📸 Registrar fotos no guardei.art
+             Registrar fotos no guardei.art
           </a>
         </CardContent>
       </Card>

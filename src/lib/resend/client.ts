@@ -26,7 +26,7 @@ export async function sendWeeklyReport(data: WeeklyReportData) {
   const { error } = await getResend().emails.send({
     from: FROM_EMAIL,
     to: data.toEmail,
-    subject: `📊 Resumo Semanal — ${data.businessName} (${data.weekStart} a ${data.weekEnd})`,
+    subject: ` Resumo Semanal — ${data.businessName} (${data.weekStart} a ${data.weekEnd})`,
     html: buildWeeklyReportHtml(data),
   });
 
@@ -36,7 +36,7 @@ export async function sendWeeklyReport(data: WeeklyReportData) {
 function buildWeeklyReportHtml(data: WeeklyReportData): string {
   return `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
-      <h1 style="color: #0ea5e9;">📊 Resumo Semanal</h1>
+      <h1 style="color: #0ea5e9;"> Resumo Semanal</h1>
       <h2>${data.businessName}</h2>
       <p style="color: #666;">${data.weekStart} a ${data.weekEnd}</p>
 

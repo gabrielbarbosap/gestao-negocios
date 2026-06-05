@@ -2,13 +2,11 @@ export const LOCATIONS = [
   {
     id: "maracaipe" as const,
     name: "Maracaipe",
-    emoji: "🏖️",
     description: "Praia de Maracaipe, PE",
   },
   {
     id: "praia_do_borete" as const,
     name: "Praia do Borete",
-    emoji: "🌊",
     description: "Praia do Borete, PE",
   },
 ] as const;
