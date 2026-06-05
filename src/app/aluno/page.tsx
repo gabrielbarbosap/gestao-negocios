@@ -12,12 +12,14 @@ import { formatTime } from "@/lib/utils";
 import type { Reservation } from "@/types/reservation";
 
 function canCancel(r: Reservation): boolean {
+  if (r.status === "completed" || r.status === "cancelled") return false;
   const now = new Date();
-  const todayStr = now.toISOString().slice(0, 10);
-  const nowTime = now.toTimeString().slice(0, 5);
-  if (r.status === "completed") return false;
-  if (r.date > todayStr) return true;
-  if (r.date === todayStr) return r.startTime > nowTime;
+  // Usa horário local (Brasil) para comparar
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const todayLocal = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const nowTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  if (r.date > todayLocal) return true;
+  if (r.date === todayLocal) return r.startTime > nowTime;
   return false;
 }
 
