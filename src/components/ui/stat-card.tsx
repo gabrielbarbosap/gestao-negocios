@@ -1,10 +1,10 @@
-import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
+import type { Icon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 interface StatCardProps {
   title: string;
   value: string | number;
-  icon?: typeof PhosphorIcon;
+  icon?: Icon;
   trend?: { value: number; label: string };
   className?: string;
   iconColor?: string;
