@@ -20,16 +20,25 @@
   /* Sunset sky — from the logo's orange area */
   --sunset:     #d4622a;
   --sunset-2:   #e87830;
+  --orange-2:   #e87830;
 
   /* Sun — from the logo's golden circle */
   --gold:       #f5c030;
   --gold-dim:   #8a6510;
+
+  /* Danger */
+  --red:        #e53e3e;
 
   /* Backgrounds — dark warm, like wet sand at night */
   --bg:         #0e0a05;
   --bg-2:       #181208;
   --bg-3:       #22180e;
   --bg-4:       #2c2014;
+
+  /* Aliases for components */
+  --surface-2:  #22180e;
+  --ocean-950:  #0e0a05;
+  --ocean-900:  #181208;
 
   /* Text */
   --text-1:     #f5ede0;   /* logo cream */
@@ -371,3 +380,60 @@ body::after {
 .rise-2 { animation: rise 0.5s 0.09s ease both; }
 .rise-3 { animation: rise 0.5s 0.18s ease both; }
 .rise-4 { animation: rise 0.5s 0.27s ease both; }
+
+/* ─── Bottom nav mobile ─────────────────────────────────────────────────── */
+
+.student-bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 50;
+  background: var(--bg-2);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 6px 0 max(8px, env(safe-area-inset-bottom));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.student-bottom-nav .nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 12px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-3);
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+  min-width: 52px;
+  letter-spacing: 0.02em;
+}
+.student-bottom-nav .nav-item.active {
+  color: var(--teal-light);
+}
+.student-bottom-nav .nav-item:not(.active):hover {
+  color: var(--text-2);
+}
+
+/* ─── Student sidebar (desktop) ─────────────────────────────────────────── */
+
+.student-sidebar-nav .nav-link {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+/* ─── Responsive utilities ──────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .card { border-radius: 12px; }
+  .font-display { letter-spacing: -0.02em; }
+}
+
+/* Safe area for iPhone bottom bar */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+}
