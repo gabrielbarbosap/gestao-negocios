@@ -213,7 +213,7 @@ function PaymentRow({ p, first }: { p: Payment; first: boolean }) {
     ? p.amount
     : typeof raw.amountTotal === "number" ? (raw.amountTotal as number) / 100 : 0;
   const name = p.customerName || "Aluno";
-  const desc = p.description || (raw.credits ? `${raw.credits} crédito(s)` : "Pagamento");
+  const desc = p.description || (raw.credits ? `${raw.credits} parafina(s)` : "Pagamento");
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "14px", padding: "13px 4px", borderTop: first ? "none" : "1px solid var(--border)" }}>

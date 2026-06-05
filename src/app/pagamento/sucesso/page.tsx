@@ -7,7 +7,7 @@ export default function PagamentoSucessoPage() {
  <div className="mb-4 text-5xl"></div>
  <h1 className="text-2xl font-bold text-slate-900 mb-2">Pagamento aprovado!</h1>
  <p className="text-slate-500 mb-6">
- Seus créditos foram adicionados à sua conta. Você já pode agendar suas aulas.
+ Suas parafinas foram adicionados à sua conta. Você já pode agendar suas aulas.
  </p>
  <Link
  href="/aluno"

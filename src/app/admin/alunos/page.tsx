@@ -157,7 +157,7 @@ export default function AlunosPage() {
               <tr style={{ borderBottom: "1px solid var(--border)", background: "var(--bg-3)" }}>
                 <th style={{ padding: "12px 16px", textAlign: "left", fontSize: "11px", fontWeight: 700, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em" }}>Aluno</th>
                 <th style={{ padding: "12px 16px", textAlign: "center", fontSize: "11px", fontWeight: 700, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em" }}>Aulas</th>
-                <th style={{ padding: "12px 16px", textAlign: "center", fontSize: "11px", fontWeight: 700, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em" }}>Créditos</th>
+                <th style={{ padding: "12px 16px", textAlign: "center", fontSize: "11px", fontWeight: 700, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em" }}>Parafinas</th>
                 <th style={{ padding: "12px 16px", textAlign: "left", fontSize: "11px", fontWeight: 700, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em" }}>Última aula</th>
                 <th style={{ padding: "12px 16px", textAlign: "left", fontSize: "11px", fontWeight: 700, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.07em" }}>Nível</th>
               </tr>
@@ -195,7 +195,7 @@ export default function AlunosPage() {
                     <p style={{ fontSize: "10.5px", color: "var(--text-3)", marginTop: "2px" }}>agendadas</p>
                   </td>
 
-                  {/* Créditos */}
+                  {/* Parafinas */}
                   <td style={{ padding: "14px 16px", textAlign: "center" }}>
                     {s.creditBalance === null ? (
                       <span style={{ fontSize: "12px", color: "var(--text-3)" }}>—</span>

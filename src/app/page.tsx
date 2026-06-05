@@ -125,7 +125,7 @@ export default function HomePage() {
  <h2 className="font-display" style={{ fontSize: "1.7rem", color: "var(--text-1)" }}>
  Pacotes
  </h2>
- <span className="section-label"> Créditos</span>
+ <span className="section-label"> Parafinas</span>
  </div>
  <PublicPackages />
  </section>

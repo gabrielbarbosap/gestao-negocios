@@ -83,12 +83,12 @@ function PacotesContent() {
  <div className="rise" style={{ maxWidth: "520px" }}>
  <header style={{ marginBottom: "22px" }}>
  <h1 className="font-display" style={{ fontSize: "1.9rem", color: "var(--text-1)" }}>Pacotes de aulas</h1>
- <p style={{ marginTop: "4px", fontSize: "13px", color: "var(--text-2)" }}>Compre créditos e agende quando quiser</p>
+ <p style={{ marginTop: "4px", fontSize: "13px", color: "var(--text-2)" }}>Cada parafina vale 1 aula — compre e agende quando quiser</p>
  </header>
 
  {success && (
  <div style={{ background: "rgba(56,193,114,0.12)", border: "1px solid rgba(56,193,114,0.3)", borderRadius: "12px", padding: "14px 18px", marginBottom: "20px", fontSize: "13.5px", color: "#1a7a4a", fontWeight: 600 }}>
- Pagamento confirmado! Seus créditos já estão disponíveis.
+ Pagamento confirmado! Suas parafinas já estão disponíveis.
  </div>
  )}
 
@@ -129,7 +129,7 @@ function PacotesContent() {
  </div>
  <div>
  <p style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-1)" }}>{pkg.name}</p>
- <p style={{ fontSize: "12px", color: "var(--text-2)", marginTop: "2px" }}>{pkg.credits} crédito{pkg.credits > 1 ? "s" : ""} de aula</p>
+ <p style={{ fontSize: "12px", color: "var(--text-2)", marginTop: "2px" }}>{pkg.credits} parafina{pkg.credits > 1 ? "s" : ""} de aula</p>
  {pkg.credits >= 4 && (
  <p style={{ fontSize: "11.5px", color: "var(--ocean)", fontWeight: 700, marginTop: "3px" }}>
  R$80/aula — economia de R${(pkg.credits * 100) - pkg.price}
@@ -159,10 +159,10 @@ function PacotesContent() {
  </div>
 
  <div style={{ background: "var(--surface-2)", borderRadius: "12px", padding: "16px 18px" }}>
- <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-1)", marginBottom: "6px" }}>Como funcionam os créditos?</p>
+ <p style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-1)", marginBottom: "6px" }}>Como funcionam as parafinas?</p>
  <p style={{ fontSize: "12.5px", color: "var(--text-2)", lineHeight: 1.6 }}>
- Após o pagamento, os créditos são adicionados automaticamente à sua conta.
- Use-os para agendar aulas nos horários disponíveis. Se cancelar uma aula, o crédito é devolvido.
+ Após o pagamento, as parafinas são adicionados automaticamente à sua conta.
+ Use-os para agendar aulas nos horários disponíveis. Se cancelar uma aula, a parafina é devolvida.
  </p>
  </div>
 

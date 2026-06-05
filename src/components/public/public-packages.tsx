@@ -141,7 +141,7 @@ export function PublicPackages() {
       })}
 
       <p style={{ textAlign: "center", fontSize: "12px", color: "var(--text-3)", marginTop: "4px" }}>
-        Pagamento seguro via Stripe · Créditos adicionados automaticamente
+        Cada parafina = 1 aula · Pagamento seguro via Stripe
       </p>
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X, Camera, ArrowUpRight } from "@phosphor-icons/react";
+import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X, Camera, ArrowUpRight, Drop } from "@phosphor-icons/react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useStudentReservations } from "@/hooks/useStudentReservations";
@@ -28,6 +28,7 @@ export default function StudentHomePage() {
   const todayStr = new Date().toISOString().slice(0, 10);
   const businessId = process.env.NEXT_PUBLIC_BUSINESS_ID!;
   const [profileComplete, setProfileComplete] = useState(true);
+  const [parafinas, setParafinas] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -36,8 +37,10 @@ export default function StudentHomePage() {
         if (snap.exists()) {
           const d = snap.data();
           setProfileComplete(!!d.phone && !!d.birthDate);
+          setParafinas(d.creditBalance ?? 0);
         } else {
           setProfileComplete(false);
+          setParafinas(0);
         }
       })
       .catch(() => {});
@@ -68,6 +71,37 @@ export default function StudentHomePage() {
           <CalendarPlus size={16} /> Agendar aula
         </Link>
       </header>
+
+      {/* ── Saldo de parafinas ────────────────────────────────────────── */}
+      {parafinas !== null && (
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          gap: "12px", padding: "16px 20px", borderRadius: "14px", marginBottom: "16px",
+          background: parafinas > 0 ? "rgba(232,97,42,0.06)" : "rgba(26,61,92,0.04)",
+          border: `1px solid ${parafinas > 0 ? "rgba(232,97,42,0.2)" : "var(--border)"}`,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: parafinas > 0 ? "var(--coral)" : "var(--bg-3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Drop size={20} weight="fill" style={{ color: parafinas > 0 ? "#fff" : "var(--text-3)" }} />
+            </div>
+            <div>
+              <p className="font-display" style={{ fontSize: "1.6rem", color: parafinas > 0 ? "var(--coral)" : "var(--text-3)", lineHeight: 1 }}>
+                {parafinas} {parafinas === 1 ? "parafina" : "parafinas"}
+              </p>
+              <p style={{ fontSize: "12px", color: "var(--text-3)", marginTop: "3px" }}>
+                {parafinas > 0
+                  ? `Você tem ${parafinas} aula${parafinas !== 1 ? "s" : ""} disponível${parafinas !== 1 ? "is" : ""}`
+                  : "Cada parafina vale 1 aula"}
+              </p>
+            </div>
+          </div>
+          {parafinas === 0 && (
+            <Link href="/aluno/pacotes" className="btn-primary" style={{ fontSize: "12px", padding: "8px 14px", textDecoration: "none", whiteSpace: "nowrap" }}>
+              Comprar
+            </Link>
+          )}
+        </div>
+      )}
 
       {!profileComplete && !loading && (
         <Link href="/aluno/perfil" style={{ textDecoration: "none" }}>
@@ -218,7 +252,7 @@ function ReservationCard({ r, past, onCancel }: { r: Reservation; past?: boolean
       {confirming && (
         <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
           <p style={{ fontSize: "12.5px", color: "var(--text-2)" }}>
-            Cancelar esta aula?{r.creditsUsed > 0 ? " Seu crédito será devolvido." : ""}
+            Cancelar esta aula?{r.creditsUsed > 0 ? " Sua parafina será devolvida." : ""}
           </p>
           <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
             <button onClick={() => setConfirming(false)} disabled={cancelling} className="btn-outline" style={{ fontSize: "12px", padding: "5px 12px", height: "auto" }}>

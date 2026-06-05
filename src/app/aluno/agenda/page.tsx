@@ -301,7 +301,7 @@ function BookingModal({ session, user, onClose, onConfirmed }: {
  <p style={{ fontSize: "12.5px", color: "var(--text-2)", textTransform: "capitalize", paddingLeft: "22px" }}>{dateLabel}</p>
  </div>
 
- {/* créditos */}
+ {/* parafinas */}
  <div className="card" style={{ padding: "14px 16px", marginBottom: "16px", background: "var(--bg-3)", display: "flex", alignItems: "center", gap: "12px" }}>
  <Ticket size={20} style={{ color: hasCredits ? "var(--teal-light)" : "var(--text-3)" }} />
  {credits === null ? (
@@ -309,16 +309,16 @@ function BookingModal({ session, user, onClose, onConfirmed }: {
  ) : (
  <div>
  <p style={{ fontSize: "13px", color: "var(--text-1)", fontWeight: 700 }}>
- {credits} {credits === 1 ? "crédito disponível" : "créditos disponíveis"}
+ {credits} {credits === 1 ? "parafina disponível" : "parafinas disponíveis"}
  </p>
  <p style={{ fontSize: "11.5px", color: "var(--text-2)", marginTop: "1px" }}>
- {hasCredits ? "Será usado 1 crédito nesta reserva." : "Você não tem créditos no momento."}
+ {hasCredits ? "Será usada 1 parafina nesta reserva." : "Você não tem parafinas no momento."}
  </p>
  </div>
  )}
  </div>
 
- {/* pagar na hora (sem créditos) */}
+ {/* pagar na hora (sem parafinas) */}
  {credits !== null && !hasCredits && (
  <label style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px 14px", borderRadius: "10px", border: `1px solid ${payOnArrival ? "var(--border-lit)" : "var(--border)"}`, background: payOnArrival ? "rgba(0,180,200,0.08)" : "transparent", cursor: "pointer", marginBottom: "16px", transition: "all 0.15s" }}>
  <input type="checkbox" checked={payOnArrival} onChange={(e) => setPayOnArrival(e.target.checked)} style={{ width: "16px", height: "16px", accentColor: "var(--teal)" }} />

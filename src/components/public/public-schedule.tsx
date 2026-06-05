@@ -357,10 +357,10 @@ function BookingModal({ session, user, onClose, onConfirmed }: {
           ) : (
             <div>
               <p style={{ fontSize: "13px", color: "var(--text-1)", fontWeight: 700 }}>
-                {credits} {credits === 1 ? "crédito disponível" : "créditos disponíveis"}
+                {credits} {credits === 1 ? "parafina disponível" : "parafinas disponíveis"}
               </p>
               <p style={{ fontSize: "11.5px", color: "var(--text-2)", marginTop: "1px" }}>
-                {hasCredits ? "Será usado 1 crédito nesta reserva." : "Você não tem créditos no momento."}
+                {hasCredits ? "Será usada 1 parafina nesta reserva." : "Você não tem parafinas no momento."}
               </p>
             </div>
           )}
