@@ -294,8 +294,6 @@ function LoginPromptModal({ date, hour, onClose }: { date: string; hour: number;
   );
 }
 
-function pad(n: number) { return String(n).padStart(2, "0"); }
-
 // ─── Modal: booking completo (usuário logado) ─────────────────────────────
 function BookingModal({ session, user, onClose, onConfirmed }: {
   session: Session; user: User; onClose: () => void; onConfirmed: () => void;

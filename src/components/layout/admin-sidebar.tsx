@@ -13,7 +13,7 @@ const NAV = [
  { label: "Alunos", href: "/admin/alunos", icon: Users },
  { label: "Financeiro", href: "/admin/financeiro", icon: Money },
  { label: "Relatórios", href: "/admin/relatorios", icon: ChartBar },
- { label: "Configurações",href: "/admin/configuracoes", icon: Settings },
+ { label: "Configurações",href: "/admin/configuracoes", icon: Gear },
 ];
 
 export function AdminSidebar() {
