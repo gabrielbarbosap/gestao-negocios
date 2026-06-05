@@ -16,7 +16,7 @@ export function PublicHeader() {
     <header style={{
       position: "sticky", top: 0, zIndex: 40,
       borderBottom: "1px solid var(--border)",
-      background: "rgba(14,11,7,0.88)",
+      background: "rgba(250,247,242,0.92)",
       backdropFilter: "blur(14px)",
       WebkitBackdropFilter: "blur(14px)",
     }}>
@@ -30,8 +30,8 @@ export function PublicHeader() {
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none", flexShrink: 0 }}>
           <div style={{
             width: "34px", height: "34px", borderRadius: "50%", overflow: "hidden", flexShrink: 0,
-            border: "1.5px solid rgba(46,191,181,0.3)",
-            boxShadow: "0 0 10px rgba(46,191,181,0.15)",
+            border: "1.5px solid rgba(232,97,42,0.3)",
+            boxShadow: "0 0 10px rgba(232,97,42,0.15)",
           }}>
             <Image src="/escola/logo.jpg" alt="Ivan Silva Surf School" width={34} height={34}
               style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -50,9 +50,9 @@ export function PublicHeader() {
                 <Link
                   href={isAdminUser(user) ? "/admin" : "/aluno"}
                   style={{
-                    fontSize: "13px", fontWeight: 700, color: "var(--teal-light)",
+                    fontSize: "13px", fontWeight: 700, color: "var(--ocean)",
                     padding: "7px 14px", borderRadius: "8px",
-                    background: "rgba(46,191,181,0.08)", border: "1px solid rgba(46,191,181,0.18)",
+                    background: "rgba(232,97,42,0.08)", border: "1px solid rgba(232,97,42,0.18)",
                     textDecoration: "none", transition: "background 0.15s",
                   }}
                 >

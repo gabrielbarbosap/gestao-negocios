@@ -114,9 +114,9 @@ export default function AgendaPage() {
               style={{
                 padding: "7px 16px", borderRadius: "9px", fontSize: "13px", fontWeight: 700,
                 border: "1px solid", cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s",
-                background: active ? "var(--teal-light)" : "var(--bg-3)",
-                borderColor: active ? "var(--teal-light)" : "var(--border)",
-                color: active ? "var(--bg)" : "var(--text-2)",
+                background: active ? "var(--coral)" : "var(--bg-3)",
+                borderColor: active ? "var(--coral)" : "var(--border)",
+                color: active ? "#fff" : "var(--text-2)",
               }}>
               {label}
             </button>
@@ -165,8 +165,8 @@ export default function AgendaPage() {
               <section key={locId}>
                 {/* Cabeçalho do local */}
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px", paddingBottom: "10px", borderBottom: "2px solid var(--border-lit)" }}>
-                  <MapPin size={16} weight="fill" style={{ color: "var(--teal-light)" }} />
-                  <h2 className="font-display" style={{ fontSize: "1.3rem", color: "var(--teal-light)" }}>{loc.name}</h2>
+                  <MapPin size={16} weight="fill" style={{ color: "var(--ocean)" }} />
+                  <h2 className="font-display" style={{ fontSize: "1.3rem", color: "var(--ocean)" }}>{loc.name}</h2>
                   <span style={{ fontSize: "12px", color: "var(--text-3)", marginLeft: "auto" }}>
                     {locSessions.length} aula{locSessions.length !== 1 ? "s" : ""} · {locAlunos} aluno{locAlunos !== 1 ? "s" : ""}
                   </span>
@@ -214,7 +214,7 @@ export default function AgendaPage() {
 function Pill({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12.5px", fontWeight: 700, color: "var(--text-2)", background: "var(--bg-3)", border: "1px solid var(--border)", padding: "6px 14px", borderRadius: "99px" }}>
-      <span style={{ color: "var(--teal-light)", display: "flex" }}>{icon}</span>{text}
+      <span style={{ color: "var(--ocean)", display: "flex" }}>{icon}</span>{text}
     </span>
   );
 }
@@ -307,7 +307,7 @@ function ClassCard({ s, reservations, dateLabel }: { s: Session; reservations: R
                 </span>
 
                 {/* Avatar */}
-                <div style={{ width: "34px", height: "34px", borderRadius: "50%", background: "var(--bg-3)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, color: "var(--teal-light)", flexShrink: 0 }}>
+                <div style={{ width: "34px", height: "34px", borderRadius: "50%", background: "var(--bg-3)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, color: "var(--ocean)", flexShrink: 0 }}>
                   {(r.customerName || "?").charAt(0).toUpperCase()}
                 </div>
 
@@ -324,7 +324,7 @@ function ClassCard({ s, reservations, dateLabel }: { s: Session; reservations: R
                     </span>
                   )}
                   {r.payment === "credit" && (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "11px", fontWeight: 700, color: "var(--teal-light)", background: "rgba(46,191,181,0.08)", border: "1px solid rgba(46,191,181,0.2)", padding: "3px 9px", borderRadius: "99px", whiteSpace: "nowrap" }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "11px", fontWeight: 700, color: "var(--ocean)", background: "rgba(232,97,42,0.08)", border: "1px solid rgba(46,191,181,0.2)", padding: "3px 9px", borderRadius: "99px", whiteSpace: "nowrap" }}>
                       <WaveTriangle size={11} /> Credito
                     </span>
                   )}

@@ -13,7 +13,7 @@ export default function HomePage() {
  <div aria-hidden style={{
  position: "fixed", top: "-60px", left: "50%", transform: "translateX(-50%)",
  width: "500px", height: "380px",
- background: "radial-gradient(ellipse, rgba(26,138,122,0.18) 0%, transparent 68%)",
+ background: "radial-gradient(ellipse, rgba(0,180,200,0.18) 0%, transparent 68%)",
  pointerEvents: "none", zIndex: 0,
  }} />
  {/* Sunset orange glow — bottom right */}
@@ -42,7 +42,7 @@ export default function HomePage() {
  <div style={{
  position: "absolute", inset: "-8px",
  borderRadius: "50%",
- border: "2px solid rgba(26,138,122,0.25)",
+ border: "2px solid rgba(0,180,200,0.25)",
  pointerEvents: "none",
  }} />
  {/* Pulse animation ring */}
@@ -58,9 +58,9 @@ export default function HomePage() {
  border: "4px solid var(--bg-3)",
  boxShadow:
  "0 0 0 2px var(--teal-dim), " +
- "0 0 40px rgba(26,138,122,0.25), " +
- "0 0 80px rgba(26,138,122,0.1), " +
- "0 8px 32px rgba(0,0,0,0.6)",
+ "0 0 40px rgba(0,180,200,0.25), " +
+ "0 0 80px rgba(0,180,200,0.1), " +
+ "0 8px 32px rgba(26,61,92,0.5)",
  position: "relative",
  }}>
  <Image
@@ -82,7 +82,7 @@ export default function HomePage() {
  marginBottom: "10px",
  }}>
  Ivan Silva<br />
- <span style={{ color: "var(--teal-light)" }}>Surf School</span>
+ <span style={{ color: "var(--ocean)" }}>Surf School</span>
  </h1>
 
  {/* Locations */}

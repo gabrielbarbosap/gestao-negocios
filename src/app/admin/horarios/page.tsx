@@ -173,8 +173,8 @@ export default function HorariosPage() {
  style={{
  fontSize: "13.5px", fontWeight: 700, padding: "9px 16px", borderRadius: "10px", cursor: "pointer",
  fontFamily: "inherit", transition: "all 0.15s",
- color: active ? "var(--bg)" : "var(--text-2)",
- background: active ? "var(--teal-light)" : "var(--bg-3)",
+ color: active ? "#fff" : "var(--text-2)",
+ background: active ? "var(--coral)" : "var(--bg-3)",
  border: `1px solid ${active ? "var(--teal-light)" : "var(--border)"}`,
  }}>
  {l.name}
@@ -249,7 +249,7 @@ export default function HorariosPage() {
  {/* barra inferior */}
  <div className="hr-savebar rise-4">
  <span style={{ fontSize: "13px", color: "var(--text-2)" }}>
- <strong style={{ color: "var(--teal-light)" }}>{totalSemana}</strong> horários liberados nesta semana
+ <strong style={{ color: "var(--ocean)" }}>{totalSemana}</strong> horários liberados nesta semana
  </span>
  <button onClick={handleSave} disabled={saving || !dirty} className="btn-primary" style={{ height: "44px", padding: "0 22px", display: "flex", alignItems: "center", gap: "8px", fontSize: "14px" }}>
  {saving ? <CircleNotch size={17} className="ph-spin" /> : saved ? <Check size={17} /> : <FloppyDisk size={17} />}
@@ -286,8 +286,8 @@ export default function HorariosPage() {
  background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04);
  color: var(--teal-light); transition: all 0.13s;
  }
- .hr-cell:hover:not(.past) { border-color: var(--border-lit); background: rgba(26,138,122,0.08); }
- .hr-cell.on { background: rgba(26,138,122,0.16); border: 1px solid rgba(46,191,181,0.45); box-shadow: 0 0 12px rgba(26,138,122,0.25); }
+ .hr-cell:hover:not(.past) { border-color: var(--border-lit); background: rgba(0,180,200,0.08); }
+ .hr-cell.on { background: rgba(0,180,200,0.16); border: 1px solid rgba(46,191,181,0.45); box-shadow: 0 0 12px rgba(0,180,200,0.25); }
  .hr-cell.on:hover { background: rgba(232,120,48,0.14); border-color: var(--border-warm); color: var(--sunset-2); }
  .hr-cell.past { opacity: 0.25; cursor: not-allowed; }
 

@@ -140,7 +140,7 @@ export default function StudentHomePage() {
         >
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div style={{ width: "38px", height: "38px", borderRadius: "10px", background: "rgba(46,191,181,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <Camera size={18} style={{ color: "var(--teal-light)" }} />
+              <Camera size={18} style={{ color: "var(--ocean)" }} />
             </div>
             <div>
               <p style={{ fontSize: "13.5px", fontWeight: 700, color: "var(--text-1)" }}>Guarde suas fotos</p>
@@ -191,12 +191,12 @@ function ReservationCard({ r, past, onCancel }: { r: Reservation; past?: boolean
         <div style={{ width: "1px", alignSelf: "stretch", background: "var(--border)" }} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ fontSize: "13.5px", color: "var(--text-1)", fontWeight: 700, display: "flex", alignItems: "center", gap: "5px" }}>
-            <MapPin size={12} style={{ color: "var(--teal-light)", flexShrink: 0 }} /> {loc.name}
+            <MapPin size={12} style={{ color: "var(--ocean)", flexShrink: 0 }} /> {loc.name}
           </p>
           <p style={{ fontSize: "12px", color: "var(--text-2)", marginTop: "3px", textTransform: "capitalize" }}>{dateLabel}</p>
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "5px" }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "11px", fontWeight: 700, color: "var(--teal-light)" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "11px", fontWeight: 700, color: "var(--ocean)" }}>
             <Check size={12} /> {r.status === "completed" ? "Concluída" : r.status === "confirmed" ? "Confirmada" : "Reservada"}
           </span>
           {r.payment === "on_arrival" && (

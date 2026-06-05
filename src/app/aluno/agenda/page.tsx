@@ -126,9 +126,9 @@ export default function StudentAgendaPage() {
  style={{
  display: "flex", alignItems: "center", gap: "7px", padding: "8px 16px", borderRadius: "9px",
  fontSize: "13px", fontWeight: 700, border: "1px solid", cursor: "pointer", transition: "all 0.15s", fontFamily: "inherit",
- background: active ? "var(--teal-light)" : "var(--bg-3)",
- borderColor: active ? "var(--teal-light)" : "var(--border)",
- color: active ? "var(--bg)" : "var(--text-2)",
+ background: active ? "var(--coral)" : "var(--bg-3)",
+ borderColor: active ? "var(--coral)" : "var(--border)",
+ color: active ? "#fff" : "var(--text-2)",
  }}>
  {loc.name}
  </button>
@@ -188,7 +188,7 @@ export default function StudentAgendaPage() {
  return (
  <td key={d.toISOString()} style={{ padding: "5px 3px" }}>
  {done ? (
- <div title="Reservado" style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "34px", width: "100%", maxWidth: "46px", margin: "0 auto", borderRadius: "8px", background: "rgba(46,191,181,0.18)", border: "1px solid rgba(46,191,181,0.5)", color: "var(--teal-light)" }}>
+ <div title="Reservado" style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "34px", width: "100%", maxWidth: "46px", margin: "0 auto", borderRadius: "8px", background: "rgba(232,97,42,0.18)", border: "1px solid rgba(46,191,181,0.5)", color: "var(--ocean)" }}>
  <Check size={15} strokeWidth={3} />
  </div>
  ) : s ? (
@@ -233,7 +233,7 @@ export default function StudentAgendaPage() {
  .ag-nav:disabled { opacity: 0.35; cursor: not-allowed; }
  .ph-spin { animation: ph-spin 0.9s linear infinite; }
  @keyframes ph-spin { to { transform: rotate(360deg); } }
- .ag-overlay { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 20px; animation: ag-fade 0.18s ease both; }
+ .ag-overlay { position: fixed; inset: 0; z-index: 60; background: rgba(26,61,92,0.5); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 20px; animation: ag-fade 0.18s ease both; }
  @keyframes ag-fade { from { opacity: 0; } to { opacity: 1; } }
  .ag-modal { width: 100%; max-width: 380px; animation: ag-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both; }
  @keyframes ag-pop { from { opacity: 0; transform: scale(0.94) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
@@ -320,7 +320,7 @@ function BookingModal({ session, user, onClose, onConfirmed }: {
 
  {/* pagar na hora (sem créditos) */}
  {credits !== null && !hasCredits && (
- <label style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px 14px", borderRadius: "10px", border: `1px solid ${payOnArrival ? "var(--border-lit)" : "var(--border)"}`, background: payOnArrival ? "rgba(26,138,122,0.08)" : "transparent", cursor: "pointer", marginBottom: "16px", transition: "all 0.15s" }}>
+ <label style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px 14px", borderRadius: "10px", border: `1px solid ${payOnArrival ? "var(--border-lit)" : "var(--border)"}`, background: payOnArrival ? "rgba(0,180,200,0.08)" : "transparent", cursor: "pointer", marginBottom: "16px", transition: "all 0.15s" }}>
  <input type="checkbox" checked={payOnArrival} onChange={(e) => setPayOnArrival(e.target.checked)} style={{ width: "16px", height: "16px", accentColor: "var(--teal)" }} />
  <Wallet size={16} style={{ color: "var(--gold)" }} />
  <span style={{ fontSize: "13px", color: "var(--text-1)", fontWeight: 600 }}>Pagar no momento da aula</span>
@@ -343,7 +343,7 @@ function BookingModal({ session, user, onClose, onConfirmed }: {
 function Detail({ icon, text }: { icon: React.ReactNode; text: string }) {
  return (
  <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "var(--text-1)", fontWeight: 600 }}>
- <span style={{ color: "var(--teal-light)", display: "flex" }}>{icon}</span>
+ <span style={{ color: "var(--ocean)", display: "flex" }}>{icon}</span>
  {text}
  </div>
  );

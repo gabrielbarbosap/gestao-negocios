@@ -115,7 +115,7 @@ export function PublicPackages() {
                   </span>
                 </div>
                 {pkg.credits >= 4 && (
-                  <p style={{ fontSize: "11px", color: "var(--teal-light)", fontWeight: 700, marginTop: "2px" }}>
+                  <p style={{ fontSize: "11px", color: "var(--ocean)", fontWeight: 700, marginTop: "2px" }}>
                     Economia de R${(pkg.credits * 100) - pkg.price}
                   </p>
                 )}

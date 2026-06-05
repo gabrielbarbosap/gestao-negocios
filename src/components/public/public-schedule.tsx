@@ -135,9 +135,9 @@ export function PublicSchedule() {
               <button key={loc.id} onClick={() => setActiveLocation(loc.id)} style={{
                 padding: "8px 16px", borderRadius: "9px", fontSize: "13px", fontWeight: 700,
                 border: "1px solid", cursor: "pointer", transition: "all 0.15s", fontFamily: "inherit",
-                background: active ? "var(--teal-light)" : "var(--bg-3)",
-                borderColor: active ? "var(--teal-light)" : "var(--border)",
-                color: active ? "var(--bg)" : "var(--text-2)",
+                background: active ? "var(--coral)" : "var(--bg-3)",
+                borderColor: active ? "var(--coral)" : "var(--border)",
+                color: active ? "#fff" : "var(--text-2)",
               }}>
                 {loc.name}
               </button>
@@ -190,7 +190,7 @@ export function PublicSchedule() {
                     return (
                       <td key={d.toISOString()} style={{ padding: "5px 3px" }}>
                         {done ? (
-                          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "32px", width: "100%", maxWidth: "46px", margin: "0 auto", borderRadius: "8px", background: "rgba(46,191,181,0.18)", border: "1px solid rgba(46,191,181,0.5)", color: "var(--teal-light)" }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "32px", width: "100%", maxWidth: "46px", margin: "0 auto", borderRadius: "8px", background: "rgba(232,97,42,0.18)", border: "1px solid rgba(46,191,181,0.5)", color: "var(--ocean)" }}>
                             <Check size={14} weight="bold" />
                           </div>
                         ) : on ? (
@@ -240,7 +240,7 @@ export function PublicSchedule() {
         .ps-nav:disabled { opacity: 0.35; cursor: not-allowed; }
         .ph-spin { animation: ph-spin 0.9s linear infinite; }
         @keyframes ph-spin { to { transform: rotate(360deg); } }
-        .ps-overlay { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 20px; animation: ps-fade 0.18s ease both; }
+        .ps-overlay { position: fixed; inset: 0; z-index: 60; background: rgba(26,61,92,0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 20px; animation: ps-fade 0.18s ease both; }
         @keyframes ps-fade { from { opacity: 0; } to { opacity: 1; } }
         .ps-modal { width: 100%; max-width: 380px; animation: ps-pop 0.22s cubic-bezier(0.34,1.56,0.64,1) both; }
         @keyframes ps-pop { from { opacity: 0; transform: scale(0.94) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
@@ -260,7 +260,7 @@ function LoginPromptModal({ date, hour, onClose }: { date: string; hour: number;
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "20px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "rgba(46,191,181,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <UserCircle size={22} style={{ color: "var(--teal-light)" }} />
+              <UserCircle size={22} style={{ color: "var(--ocean)" }} />
             </div>
             <h2 className="font-display" style={{ fontSize: "1.3rem", color: "var(--text-1)" }}>Faça login para agendar</h2>
           </div>
@@ -272,7 +272,7 @@ function LoginPromptModal({ date, hour, onClose }: { date: string; hour: number;
         <div style={{ background: "var(--bg-3)", borderRadius: "10px", padding: "12px 16px", marginBottom: "20px" }}>
           <p style={{ fontSize: "12px", color: "var(--text-3)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "4px" }}>Horário selecionado</p>
           <p style={{ fontSize: "14px", color: "var(--text-1)", fontWeight: 700, textTransform: "capitalize" }}>{dateLabel}</p>
-          <p style={{ fontSize: "13px", color: "var(--teal-light)", fontWeight: 700, marginTop: "2px" }}>{pad(hour)}:00 – {pad(hour + 1)}:00</p>
+          <p style={{ fontSize: "13px", color: "var(--ocean)", fontWeight: 700, marginTop: "2px" }}>{pad(hour)}:00 – {pad(hour + 1)}:00</p>
         </div>
 
         <p style={{ fontSize: "13.5px", color: "var(--text-2)", marginBottom: "20px", lineHeight: 1.6 }}>
@@ -342,10 +342,10 @@ function BookingModal({ session, user, onClose, onConfirmed }: {
 
         <div style={{ display: "flex", flexDirection: "column", gap: "9px", marginBottom: "18px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "var(--text-1)", fontWeight: 600 }}>
-            <MapPin size={14} style={{ color: "var(--teal-light)" }} /> {loc.name}
+            <MapPin size={14} style={{ color: "var(--ocean)" }} /> {loc.name}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "var(--text-1)", fontWeight: 600 }}>
-            <Clock size={14} style={{ color: "var(--teal-light)" }} /> {intervalo}
+            <Clock size={14} style={{ color: "var(--ocean)" }} /> {intervalo}
           </div>
           <p style={{ fontSize: "12.5px", color: "var(--text-2)", textTransform: "capitalize", paddingLeft: "22px" }}>{dateLabel}</p>
         </div>
@@ -367,7 +367,7 @@ function BookingModal({ session, user, onClose, onConfirmed }: {
         </div>
 
         {credits !== null && !hasCredits && (
-          <label style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px 14px", borderRadius: "10px", border: `1px solid ${payOnArrival ? "var(--border-lit)" : "var(--border)"}`, background: payOnArrival ? "rgba(26,138,122,0.08)" : "transparent", cursor: "pointer", marginBottom: "16px", transition: "all 0.15s" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px 14px", borderRadius: "10px", border: `1px solid ${payOnArrival ? "var(--border-lit)" : "var(--border)"}`, background: payOnArrival ? "rgba(0,180,200,0.08)" : "transparent", cursor: "pointer", marginBottom: "16px", transition: "all 0.15s" }}>
             <input type="checkbox" checked={payOnArrival} onChange={(e) => setPayOnArrival(e.target.checked)} style={{ width: "16px", height: "16px", accentColor: "var(--teal)" }} />
             <Wallet size={16} style={{ color: "var(--gold)" }} />
             <span style={{ fontSize: "13px", color: "var(--text-1)", fontWeight: 600 }}>Pagar no momento da aula</span>

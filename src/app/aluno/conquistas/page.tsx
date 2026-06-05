@@ -113,7 +113,7 @@ export default function ConquistasPage() {
         alignItems: "center",
         gap: "12px",
       }}>
-        <Seal size={22} weight="fill" style={{ color: "var(--teal-light)", flexShrink: 0 }} />
+        <Seal size={22} weight="fill" style={{ color: "var(--ocean)", flexShrink: 0 }} />
         <p style={{ fontSize: "13px", color: "var(--text-2)", lineHeight: 1.5 }}>
           <strong style={{ color: "var(--text-1)" }}>Você mesmo controla suas conquistas.</strong>
           {" "}Clique em qualquer card para marcar como alcançado — ou desmarcar se quiser corrigir.
@@ -131,7 +131,7 @@ export default function ConquistasPage() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px", flexWrap: "wrap", gap: "8px" }}>
               <div>
                 <p style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Nível</p>
-                <p className="font-display" style={{ fontSize: "1.4rem", color: "var(--teal-light)", marginTop: "2px" }}>{level}</p>
+                <p className="font-display" style={{ fontSize: "1.4rem", color: "var(--ocean)", marginTop: "2px" }}>{level}</p>
               </div>
               <div style={{ textAlign: "right" }}>
                 <p style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>XP total</p>
@@ -155,7 +155,7 @@ export default function ConquistasPage() {
               </>
             )}
             {!nextThreshold && (
-              <p style={{ fontSize: "12.5px", color: "var(--teal-light)", fontWeight: 700, textAlign: "center" }}>
+              <p style={{ fontSize: "12.5px", color: "var(--ocean)", fontWeight: 700, textAlign: "center" }}>
                 Nível máximo atingido!
               </p>
             )}

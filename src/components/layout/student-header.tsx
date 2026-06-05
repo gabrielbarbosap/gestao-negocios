@@ -20,7 +20,7 @@ export function StudentHeader() {
         height: "58px",
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "0 16px",
-        background: "rgba(14,11,7,0.88)",
+        background: "rgba(250,247,242,0.92)",
         borderBottom: "1px solid var(--border)",
         backdropFilter: "blur(14px)",
         WebkitBackdropFilter: "blur(14px)",
@@ -30,8 +30,8 @@ export function StudentHeader() {
       <Link href="/" style={{ display: "flex", alignItems: "center", gap: "9px", textDecoration: "none" }}>
         <div style={{
           width: "32px", height: "32px", borderRadius: "50%", overflow: "hidden", flexShrink: 0,
-          border: "1.5px solid rgba(46,191,181,0.3)",
-          boxShadow: "0 0 10px rgba(46,191,181,0.15)",
+          border: "1.5px solid rgba(232,97,42,0.3)",
+          boxShadow: "0 0 10px rgba(232,97,42,0.15)",
         }}>
           <Image src="/escola/logo.jpg" alt="Ivan Silva Surf School" width={32} height={32}
             style={{ width: "100%", height: "100%", objectFit: "cover" }} />

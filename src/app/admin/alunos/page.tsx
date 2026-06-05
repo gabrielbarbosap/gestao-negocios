@@ -171,13 +171,13 @@ export default function AlunosPage() {
                   {/* Aluno */}
                   <td style={{ padding: "14px 16px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                      <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "var(--bg-4)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 700, color: "var(--teal-light)", flexShrink: 0 }}>
+                      <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "var(--bg-4)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 700, color: "var(--ocean)", flexShrink: 0 }}>
                         {s.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                           <p style={{ fontSize: "13.5px", fontWeight: 700, color: "var(--text-1)" }}>{s.name}</p>
-                          {s.profileComplete && <SealCheck size={14} weight="fill" style={{ color: "var(--teal-light)" }} />}
+                          {s.profileComplete && <SealCheck size={14} weight="fill" style={{ color: "var(--ocean)" }} />}
                         </div>
                         <p style={{ fontSize: "11.5px", color: "var(--text-2)", marginTop: "1px" }}>{s.email}</p>
                         {s.phone && (

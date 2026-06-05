@@ -131,7 +131,7 @@ function PacotesContent() {
  <p style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-1)" }}>{pkg.name}</p>
  <p style={{ fontSize: "12px", color: "var(--text-2)", marginTop: "2px" }}>{pkg.credits} crédito{pkg.credits > 1 ? "s" : ""} de aula</p>
  {pkg.credits >= 4 && (
- <p style={{ fontSize: "11.5px", color: "var(--teal-light)", fontWeight: 700, marginTop: "3px" }}>
+ <p style={{ fontSize: "11.5px", color: "var(--ocean)", fontWeight: 700, marginTop: "3px" }}>
  R$80/aula — economia de R${(pkg.credits * 100) - pkg.price}
  </p>
  )}

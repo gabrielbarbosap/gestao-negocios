@@ -98,7 +98,7 @@ function LoginForm() {
  <div aria-hidden style={{
  position: "fixed", top: "-60px", right: "-80px",
  width: "440px", height: "360px", pointerEvents: "none",
- background: "radial-gradient(ellipse, rgba(26,138,122,0.1) 0%, transparent 65%)",
+ background: "radial-gradient(ellipse, rgba(0,180,200,0.1) 0%, transparent 65%)",
  }} />
 
  <div className="rise" style={{ width: "100%", maxWidth: "360px", position: "relative", zIndex: 1 }}>
@@ -175,7 +175,7 @@ function LoginForm() {
 
  <p style={{ marginTop: "20px", textAlign: "center", fontSize: "13px", color: "var(--text-3)" }}>
  Não tem conta?{" "}
- <Link href={`/registro?redirect=${encodeURIComponent(redirectTo)}`} style={{ color: "var(--teal-light)", fontWeight: 700 }}>
+ <Link href={`/registro?redirect=${encodeURIComponent(redirectTo)}`} style={{ color: "var(--ocean)", fontWeight: 700 }}>
  Criar conta
  </Link>
  </p>

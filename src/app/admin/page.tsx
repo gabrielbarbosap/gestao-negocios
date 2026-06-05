@@ -111,7 +111,7 @@ export default function AdminDashboard() {
                     <div title={`${v}%`} style={{
                       width: "100%", maxWidth: "32px", height: `${Math.max(v, 3)}%`, borderRadius: "7px 7px 3px 3px",
                       background: v >= 90 ? "linear-gradient(180deg, var(--gold), var(--sunset))" : "linear-gradient(180deg, var(--teal-light), var(--teal-dim))",
-                      boxShadow: v >= 90 ? "0 0 16px rgba(245,192,48,0.35)" : v > 0 ? "0 0 12px rgba(26,138,122,0.3)" : "none",
+                      boxShadow: v >= 90 ? "0 0 16px rgba(245,192,48,0.35)" : v > 0 ? "0 0 12px rgba(0,180,200,0.3)" : "none",
                       opacity: v > 0 ? 1 : 0.2,
                       transition: "height 0.6s cubic-bezier(0.34,1.56,0.64,1)",
                     }} />
@@ -127,7 +127,7 @@ export default function AdminDashboard() {
         <div className="card rise-3" style={{ padding: "22px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "18px" }}>
             <h3 className="font-display" style={{ fontSize: "1.25rem", color: "var(--text-1)" }}>Próximas aulas</h3>
-            <a href="/admin/agenda" style={{ fontSize: "12px", color: "var(--teal-light)", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: "2px", textDecoration: "none" }}>
+            <a href="/admin/agenda" style={{ fontSize: "12px", color: "var(--ocean)", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: "2px", textDecoration: "none" }}>
               Ver agenda <ArrowUpRight size={13} />
             </a>
           </div>
@@ -189,7 +189,7 @@ function UpcomingRow({ s }: { s: Session }) {
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontSize: "13px", color: "var(--text-1)", fontWeight: 600, display: "flex", alignItems: "center", gap: "5px" }}>
-          <MapPin size={11} style={{ color: "var(--teal-light)", flexShrink: 0 }} /> {loc.name}
+          <MapPin size={11} style={{ color: "var(--ocean)", flexShrink: 0 }} /> {loc.name}
         </p>
         <p style={{ fontSize: "11.5px", color: "var(--text-2)", marginTop: "2px", textTransform: "capitalize" }}>{dateLabel}</p>
       </div>
@@ -217,7 +217,7 @@ function PaymentRow({ p, first }: { p: Payment; first: boolean }) {
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "14px", padding: "13px 4px", borderTop: first ? "none" : "1px solid var(--border)" }}>
-      <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "var(--bg-3)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, color: "var(--teal-light)", flexShrink: 0 }}>
+      <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "var(--bg-3)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontWeight: 700, color: "var(--ocean)", flexShrink: 0 }}>
         {name.charAt(0).toUpperCase()}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
