@@ -23,7 +23,7 @@ export function StudentBottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="student-bottom-nav md:hidden">
+    <nav className="student-bottom-nav">
       {NAV.map(({ label, href, icon: Icon }) => (
         <Link
           key={href}

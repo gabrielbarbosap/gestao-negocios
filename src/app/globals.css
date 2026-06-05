@@ -337,6 +337,11 @@ body::after {
 }
 .admin-close { display: none; }
 
+/* ── Bottom nav: só no mobile ───────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .student-bottom-nav { display: flex; }
+}
+
 /* ── Mobile: < 860px ──────────────────────────────────────────────────── */
 @media (max-width: 860px) {
   .admin-shell {
@@ -392,6 +397,7 @@ body::after {
   position: fixed;
   bottom: 0; left: 0; right: 0;
   z-index: 50;
+  display: none; /* escondido por padrão, só aparece no mobile */
   background: var(--bg-2);
   border-top: 1px solid var(--border);
   display: flex;
