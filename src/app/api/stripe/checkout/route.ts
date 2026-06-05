@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
       mode: "payment",
       line_items: [{ price: priceId, quantity: 1 }],
       metadata: { customerId, businessId, credits: String(credits) },
+      allow_promotion_codes: true,
       success_url: `${appUrl}/aluno/pacotes?sucesso=1`,
       cancel_url: `${appUrl}/aluno/pacotes`,
     });
