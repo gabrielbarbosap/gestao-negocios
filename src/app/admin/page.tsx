@@ -26,10 +26,10 @@ export default function AdminDashboard() {
     weekday: "long", day: "numeric", month: "long",
   });
 
-  const stats = [
+  const stats: { label: string; value: string; icon: typeof CalendarDots; accent: string; note?: string }[] = [
     { label: "Aulas esta semana",  value: String(d.sessionsThisWeek),      icon: CalendarDots, accent: "var(--teal-light)" },
-    { label: "Alunos cadastrados", value: String(d.activeStudents),         icon: Users,        accent: "var(--gold)" },
-    { label: "Receita total",      value: formatCurrency(d.revenueTotal),   icon: Money,        accent: "var(--teal-mid)" },
+    { label: "Alunos ativos",      value: String(d.activeStudents),         icon: Users,        accent: "var(--gold)" },
+    { label: "Receita bruta",      value: formatCurrency(d.revenueTotal),   icon: Money,        accent: "var(--teal-mid)", note: "Sem descontar taxas Stripe (~2,99% + R$0,39/venda)" },
     { label: "Ocupação média",     value: `${d.avgOccupancy}%`,             icon: TrendUp,      accent: "var(--sunset-2)" },
   ];
 
@@ -62,7 +62,7 @@ export default function AdminDashboard() {
 
       {/* ── Stat cards ───────────────────────────────────────────────────── */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: "14px", marginBottom: "18px" }}>
-        {stats.map(({ label, value, icon: Icon, accent }, i) => (
+        {stats.map(({ label, value, icon: Icon, accent, note }, i) => (
           <div key={label} className={`card rise-${Math.min(i + 1, 4)}`} style={{ padding: "20px", position: "relative", overflow: "hidden" }}>
             <div aria-hidden style={{
               position: "absolute", top: "-30px", right: "-30px", width: "120px", height: "120px",
@@ -77,6 +77,11 @@ export default function AdminDashboard() {
             <p style={{ fontSize: "12px", color: "var(--text-2)", marginTop: "6px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
               {label}
             </p>
+            {note && (
+              <p style={{ fontSize: "10.5px", color: "var(--text-3)", marginTop: "5px", lineHeight: 1.4 }}>
+                * {note}
+              </p>
+            )}
           </div>
         ))}
       </div>
