@@ -87,20 +87,38 @@ export default function ConquistasPage() {
   const totalAchievements = SURF_ACHIEVEMENTS.length;
 
   // XP para próximo nível
-  const nextThreshold = level === "Avançado" ? null : level === "Intermediário" ? 2000 : 500;
-  const prevThreshold = level === "Avançado" ? 2000 : level === "Intermediário" ? 500 : 0;
+  const nextThreshold = level === "Avançado" ? null : level === "Intermediário" ? 8000 : 2000;
+  const prevThreshold = level === "Avançado" ? 8000 : level === "Intermediário" ? 2000 : 0;
   const progress = nextThreshold
     ? Math.min(100, ((xp - prevThreshold) / (nextThreshold - prevThreshold)) * 100)
     : 100;
 
   return (
     <div className="rise" style={{ maxWidth: "600px" }}>
-      <header style={{ marginBottom: "24px" }}>
+      <header style={{ marginBottom: "20px" }}>
         <h1 className="font-display" style={{ fontSize: "1.9rem", color: "var(--text-1)" }}>Conquistas</h1>
         <p style={{ marginTop: "4px", fontSize: "13px", color: "var(--text-2)" }}>
-          Marque cada conquista que você alcançou na sua jornada
+          Sua jornada no surf em conquistas e XP
         </p>
       </header>
+
+      {/* Instrução clara */}
+      <div style={{
+        background: "rgba(46,191,181,0.07)",
+        border: "1px solid rgba(46,191,181,0.2)",
+        borderRadius: "12px",
+        padding: "13px 16px",
+        marginBottom: "22px",
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+      }}>
+        <Seal size={22} weight="fill" style={{ color: "var(--teal-light)", flexShrink: 0 }} />
+        <p style={{ fontSize: "13px", color: "var(--text-2)", lineHeight: 1.5 }}>
+          <strong style={{ color: "var(--text-1)" }}>Você mesmo controla suas conquistas.</strong>
+          {" "}Clique em qualquer card para marcar como alcançado — ou desmarcar se quiser corrigir.
+        </p>
+      </div>
 
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", padding: "48px" }}>
