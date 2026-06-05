@@ -35,10 +35,10 @@ export async function POST(req: NextRequest) {
 
   await adminDb
     .doc(`businesses/${businessId}/customers/${customerId}`)
-    .update({
+    .set({
       creditBalance: FieldValue.increment(creditsNum),
       updatedAt: FieldValue.serverTimestamp(),
-    });
+    }, { merge: true });
 
   await adminDb.collection(`businesses/${businessId}/payments`).add({
     customerId,
