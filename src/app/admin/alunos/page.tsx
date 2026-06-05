@@ -14,7 +14,7 @@ interface StudentRow {
   name: string;
   email: string;
   phone?: string;
-  creditBalance: number;
+  creditBalance: number | null; // null = sem documento no Firestore
   level: string;
   totalAulas: number;
   aulasConcluidas: number;
@@ -76,7 +76,7 @@ export default function AlunosPage() {
             name,
             email: customer?.email ?? "—",
             phone: customer?.phone,
-            creditBalance: customer?.creditBalance ?? 0,
+            creditBalance: customer ? (customer.creditBalance ?? 0) : null,
             level: customer?.level ?? "Iniciante",
             totalAulas: ativas.length,
             aulasConcluidas: concluidas.length,
@@ -197,12 +197,16 @@ export default function AlunosPage() {
 
                   {/* Créditos */}
                   <td style={{ padding: "14px 16px", textAlign: "center" }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
-                      <Ticket size={14} style={{ color: s.creditBalance > 0 ? "var(--teal-light)" : "var(--text-3)" }} />
-                      <span className="font-display" style={{ fontSize: "1.2rem", color: s.creditBalance > 0 ? "var(--teal-light)" : "var(--text-3)" }}>
-                        {s.creditBalance}
-                      </span>
-                    </div>
+                    {s.creditBalance === null ? (
+                      <span style={{ fontSize: "12px", color: "var(--text-3)" }}>—</span>
+                    ) : (
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
+                        <Ticket size={14} style={{ color: s.creditBalance > 0 ? "var(--teal-light)" : "var(--text-3)" }} />
+                        <span className="font-display" style={{ fontSize: "1.2rem", color: s.creditBalance > 0 ? "var(--teal-light)" : "var(--text-3)" }}>
+                          {s.creditBalance}
+                        </span>
+                      </div>
+                    )}
                   </td>
 
                   {/* Última aula */}

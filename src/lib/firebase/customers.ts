@@ -12,7 +12,8 @@ function customersPath(businessId: string) {
 }
 
 export async function listCustomers(businessId: string): Promise<Customer[]> {
-  return queryDocuments<Customer>(customersPath(businessId), orderBy("name"));
+  // Sem orderBy para não excluir documentos sem o campo name
+  return queryDocuments<Customer>(customersPath(businessId));
 }
 
 // Saldo de créditos do aluno (0 se ainda não houver cadastro).
