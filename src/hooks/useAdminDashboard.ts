@@ -92,11 +92,11 @@ export function useAdminDashboard(businessId: string | null | undefined): Dashbo
 
         // ── Receita total (todos os pagamentos aprovados) ─────────────────
         const approvedPayments = allPayments.filter(
-          (p) => (p.status === "approved") || ((p as Record<string, unknown>).status === "approved"),
+          (p) => (p as unknown as Record<string, unknown>).status === "approved",
         );
 
         const revenueTotal = approvedPayments.reduce((sum, p) => {
-          const raw = p as Record<string, unknown>;
+          const raw = p as unknown as Record<string, unknown>;
           const amount = typeof p.amount === "number"
             ? p.amount
             : typeof raw.amountTotal === "number"
