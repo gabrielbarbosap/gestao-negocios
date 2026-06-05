@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { listSessions } from "@/lib/firebase/sessions";
-import { listCustomers } from "@/lib/firebase/customers";
+import { listReservations } from "@/lib/firebase/reservations";
 import { fetchPayments } from "@/lib/firebase/payments";
 import type { Session } from "@/types/session";
 import type { Payment } from "@/types/payment";
+import type { Reservation } from "@/types/reservation";
 
 export interface DashboardData {
   loading: boolean;
@@ -54,9 +55,9 @@ export function useAdminDashboard(businessId: string | null | undefined): Dashbo
 
     (async () => {
       try {
-        const [sessions, customers, allPayments] = await Promise.all([
+        const [sessions, reservations, allPayments] = await Promise.all([
           listSessions(businessId),
-          listCustomers(businessId),
+          listReservations(businessId),
           fetchPayments(businessId, 100),
         ]);
         if (cancelled) return;
@@ -75,8 +76,12 @@ export function useAdminDashboard(businessId: string | null | undefined): Dashbo
           .filter((s) => s.date >= today && (s.status === "available" || s.status === "full"))
           .slice(0, 5);
 
-        // ── Alunos cadastrados ────────────────────────────────────────────
-        const activeStudents = customers.length;
+        // ── Alunos únicos (por reservas — mais preciso que coleção customers) ──
+        const activeStudents = new Set(
+          reservations
+            .filter((r: Reservation) => r.status !== "cancelled")
+            .map((r: Reservation) => r.customerId)
+        ).size;
 
         // ── Receita total (todos os pagamentos aprovados) ─────────────────
         const approvedPayments = allPayments.filter(
