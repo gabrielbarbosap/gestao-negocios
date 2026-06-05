@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, CheckCircle, X } from "@phosphor-icons/react";
+import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X } from "@phosphor-icons/react";
 import { useStudentReservations } from "@/hooks/useStudentReservations";
 import { cancelReservation } from "@/lib/firebase/reservations";
 import { getLocation } from "@/constants/locations";
