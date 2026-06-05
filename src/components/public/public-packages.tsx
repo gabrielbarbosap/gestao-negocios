@@ -1,79 +1,150 @@
 "use client";
 
-import { formatCurrency } from "@/lib/utils";
+import { useState } from "react";
+import { Loader2, Zap, Star, Package } from "lucide-react";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import { useAuthStore } from "@/store/auth";
 
 const PACKAGES = [
-  { id: "4",  label: "4 aulas",  price: 400, tag: null           },
-  { id: "8",  label: "8 aulas",  price: 720, tag: "Mais popular" },
-  { id: "12", label: "12 aulas", price: 960, tag: null           },
+  {
+    priceId: "price_1Tf2aHCyFEmb0TbKWw4qUA2g",
+    label: "Aula Avulsa",
+    credits: 1,
+    price: 100,
+    pricePerClass: 100,
+    icon: Zap,
+    highlight: false,
+    tag: null,
+  },
+  {
+    priceId: "price_1Tf2afCyFEmb0TbKtjAGlrMl",
+    label: "Pacote 4 Aulas",
+    credits: 4,
+    price: 320,
+    pricePerClass: 80,
+    icon: Star,
+    highlight: true,
+    tag: "Mais recomendado",
+  },
+  {
+    priceId: "price_1Tf2bHCyFEmb0TbKD9RCE546",
+    label: "Pacote 8 Aulas",
+    credits: 8,
+    price: 640,
+    pricePerClass: 80,
+    icon: Package,
+    highlight: false,
+    tag: null,
+  },
 ];
 
 export function PublicPackages() {
   const { requireAuth } = useRequireAuth();
+  const user = useAuthStore((s) => s.user);
+  const [loading, setLoading] = useState<string | null>(null);
+
+  async function handleBuy(pkg: typeof PACKAGES[0]) {
+    requireAuth(async () => {
+      if (!user) return;
+      setLoading(pkg.priceId);
+      try {
+        const res = await fetch("/api/stripe/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            priceId: pkg.priceId,
+            customerId: user.uid,
+            businessId: process.env.NEXT_PUBLIC_BUSINESS_ID,
+            credits: pkg.credits,
+          }),
+        });
+        const data = await res.json();
+        if (data.url) window.location.href = data.url;
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(null);
+      }
+    });
+  }
 
   return (
-    <div style={{ display: "grid", gap: "10px" }}>
-      {PACKAGES.map((pkg) => (
-        <div
-          key={pkg.id}
-          className="card"
-          style={{
-            display: "flex", alignItems: "center",
-            justifyContent: "space-between", gap: "16px",
-            padding: "18px 20px",
-            ...(pkg.tag ? { borderColor: "var(--border-lit)" } : {}),
-          }}
-        >
-          <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
-              <span
-                className="font-display"
-                style={{ fontSize: "1.25rem", color: "var(--text-1)" }}
-              >
-                {pkg.label}
-              </span>
-              {pkg.tag && (
-                <span
-                  style={{
-                    fontSize: "10px", fontWeight: 700,
-                    textTransform: "uppercase", letterSpacing: "0.1em",
-                    padding: "2px 8px", borderRadius: "99px",
-                    background: "rgba(244,98,42,0.12)",
-                    color: "var(--orange-2)",
-                    border: "1px solid rgba(244,98,42,0.2)",
-                  }}
-                >
-                  {pkg.tag}
-                </span>
-              )}
-            </div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
-              <span
-                className="font-display"
-                style={{ fontSize: "1.7rem", color: "var(--text-1)" }}
-              >
-                {formatCurrency(pkg.price)}
-              </span>
-              <span style={{ fontSize: "12px", color: "var(--text-3)" }}>
-                {formatCurrency(pkg.price / parseInt(pkg.id))}/aula
-              </span>
-            </div>
-          </div>
-
-          <button
-            onClick={() => requireAuth(() => alert(`Comprando ${pkg.label}...`))}
-            className={pkg.tag ? "btn-primary" : "btn-outline"}
-            style={{ padding: "9px 20px", fontSize: "13px", whiteSpace: "nowrap", flexShrink: 0 }}
+    <div style={{ display: "grid", gap: "12px" }}>
+      {PACKAGES.map((pkg) => {
+        const Icon = pkg.icon;
+        const isLoading = loading === pkg.priceId;
+        return (
+          <div
+            key={pkg.priceId}
+            className="card"
+            style={{
+              display: "flex", alignItems: "center",
+              justifyContent: "space-between", gap: "16px",
+              padding: "18px 20px",
+              border: pkg.highlight ? "2px solid var(--teal-light)" : undefined,
+              position: "relative",
+            }}
           >
-            Comprar
-          </button>
-        </div>
-      ))}
+            {pkg.tag && (
+              <div style={{
+                position: "absolute", top: "-11px", left: "18px",
+                background: "var(--teal-light)", color: "#fff",
+                fontSize: "10px", fontWeight: 700, padding: "2px 10px",
+                borderRadius: "99px", letterSpacing: "0.04em",
+              }}>
+                {pkg.tag}
+              </div>
+            )}
+
+            <div style={{ display: "flex", alignItems: "center", gap: "14px", flex: 1, minWidth: 0 }}>
+              <div style={{
+                width: "40px", height: "40px", borderRadius: "10px", flexShrink: 0,
+                background: pkg.highlight ? "rgba(56,193,180,0.12)" : "var(--surface-2)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <Icon size={18} style={{ color: pkg.highlight ? "var(--teal-light)" : "var(--text-2)" }} />
+              </div>
+              <div>
+                <p className="font-display" style={{ fontSize: "1.15rem", color: "var(--text-1)" }}>{pkg.label}</p>
+                <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginTop: "2px" }}>
+                  <span className="font-display" style={{ fontSize: "1.4rem", color: "var(--text-1)" }}>
+                    R$ {pkg.price.toLocaleString("pt-BR")}
+                  </span>
+                  <span style={{ fontSize: "11px", color: "var(--text-3)" }}>
+                    R${pkg.pricePerClass}/aula
+                  </span>
+                </div>
+                {pkg.credits >= 4 && (
+                  <p style={{ fontSize: "11px", color: "var(--teal-light)", fontWeight: 700, marginTop: "2px" }}>
+                    Economia de R${(pkg.credits * 100) - pkg.price}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <button
+              onClick={() => handleBuy(pkg)}
+              disabled={!!loading}
+              className={pkg.highlight ? "btn-primary" : "btn-outline"}
+              style={{
+                padding: "9px 20px", fontSize: "13px",
+                whiteSpace: "nowrap", flexShrink: 0,
+                display: "flex", alignItems: "center", gap: "6px",
+                opacity: loading && !isLoading ? 0.5 : 1,
+              }}
+            >
+              {isLoading && <Loader2 size={13} style={{ animation: "spin 0.9s linear infinite" }} />}
+              {isLoading ? "Aguarde..." : "Comprar"}
+            </button>
+          </div>
+        );
+      })}
 
       <p style={{ textAlign: "center", fontSize: "12px", color: "var(--text-3)", marginTop: "4px" }}>
-        Pix ou cartão em até 12×
+        Pagamento seguro via Stripe · Créditos adicionados automaticamente
       </p>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
