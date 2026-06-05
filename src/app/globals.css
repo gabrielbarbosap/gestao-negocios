@@ -397,13 +397,12 @@ body::after {
   position: fixed;
   bottom: 0; left: 0; right: 0;
   z-index: 50;
-  display: none; /* escondido por padrão, só aparece no mobile */
-  background: var(--bg-2);
-  border-top: 1px solid var(--border);
-  display: flex;
+  display: none;
   justify-content: space-around;
   align-items: center;
   padding: 6px 0 max(8px, env(safe-area-inset-bottom));
+  background: var(--bg-2);
+  border-top: 1px solid var(--border);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
