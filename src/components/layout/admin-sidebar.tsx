@@ -3,18 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDots, Clock, Users, Money, ChartBar, SquaresFour, Gear, SignOut, List, X } from "@phosphor-icons/react";
+import { CalendarDots, Clock, Users, SquaresFour, SignOut, List, X } from "@phosphor-icons/react";
 import { logout } from "@/lib/firebase/auth";
 
 const NAV = [
  { label: "Dashboard", href: "/admin", icon: SquaresFour },
  { label: "Agenda", href: "/admin/agenda", icon: CalendarDots },
  { label: "Horários", href: "/admin/horarios", icon: Clock },
- { label: "Alunos", href: "/admin/alunos", icon: Users },
- { label: "Financeiro", href: "/admin/financeiro", icon: Money },
- { label: "Relatórios", href: "/admin/relatorios", icon: ChartBar },
- { label: "Configurações",href: "/admin/configuracoes", icon: Gear },
-];
+ { label: "Alunos", href: "/admin/alunos", icon: Users },];
 
 export function AdminSidebar() {
  const pathname = usePathname();
