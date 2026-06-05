@@ -73,7 +73,7 @@ export function AdminSidebar() {
           <Menu size={22} />
         </button>
         <Link href="/" className="font-display" style={{ fontSize: "1.1rem", color: "var(--text-1)" }}>
-          GestãoSurf
+          Ivan Silva Surf School
         </Link>
         <div style={{ width: "34px" }} />
       </header>
@@ -85,7 +85,7 @@ export function AdminSidebar() {
       <aside className={`admin-sidebar ${open ? "open" : ""}`}>
         <div style={{ height: "56px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 18px", borderBottom: "1px solid var(--border)" }}>
           <Link href="/" className="font-display" style={{ fontSize: "1.1rem", color: "var(--text-1)" }} onClick={() => setOpen(false)}>
-            GestãoSurf
+            Ivan Silva Surf School
           </Link>
           <button
             aria-label="Fechar menu"
