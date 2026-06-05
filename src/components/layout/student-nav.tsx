@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { House, CalendarDots, Trophy, TrendUp, Package, UserCircle } from "@phosphor-icons/react";
+import { House, CalendarDots, Trophy, Package, UserCircle } from "@phosphor-icons/react";
 
 const NAV = [
   { label: "Início",      href: "/aluno",           icon: House        },
   { label: "Agendar",     href: "/aluno/agenda",     icon: CalendarDots },
   { label: "Pacotes",     href: "/aluno/pacotes",    icon: Package      },
-  { label: "Evolução",    href: "/aluno/evolucao",   icon: TrendUp      },
   { label: "Conquistas",  href: "/aluno/conquistas", icon: Trophy       },
   { label: "Perfil",      href: "/aluno/perfil",     icon: UserCircle   },
 ];

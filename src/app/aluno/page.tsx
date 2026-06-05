@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X } from "@phosphor-icons/react";
+import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X, Camera, ArrowUpRight } from "@phosphor-icons/react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useStudentReservations } from "@/hooks/useStudentReservations";
@@ -121,6 +121,35 @@ export default function StudentHomePage() {
           )}
         </>
       )}
+
+      {/* Card guardei.art */}
+      <a
+        href="https://guardei.art"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ textDecoration: "none", display: "block", marginTop: "28px" }}
+      >
+        <div className="card" style={{
+          padding: "16px 18px",
+          display: "flex", alignItems: "center", justifyContent: "space-between", gap: "14px",
+          transition: "border-color 0.15s, background 0.15s",
+          cursor: "pointer",
+        }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "var(--border-lit)"; (e.currentTarget as HTMLElement).style.background = "var(--card-hover)"; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = ""; (e.currentTarget as HTMLElement).style.background = ""; }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ width: "38px", height: "38px", borderRadius: "10px", background: "rgba(46,191,181,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Camera size={18} style={{ color: "var(--teal-light)" }} />
+            </div>
+            <div>
+              <p style={{ fontSize: "13.5px", fontWeight: 700, color: "var(--text-1)" }}>Guarde suas fotos</p>
+              <p style={{ fontSize: "12px", color: "var(--text-2)", marginTop: "2px" }}>Registre as memórias das suas aulas em guardei.art</p>
+            </div>
+          </div>
+          <ArrowUpRight size={16} style={{ color: "var(--text-3)", flexShrink: 0 }} />
+        </div>
+      </a>
 
       <style>{`
         .ph-spin { animation: ph-spin 0.9s linear infinite; }
