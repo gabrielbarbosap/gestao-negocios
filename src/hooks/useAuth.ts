@@ -10,8 +10,13 @@ import { generateSlug } from "@/lib/utils";
 
 export const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? "";
 
+const ADMIN_EMAILS = new Set([
+  ADMIN_EMAIL,
+  "ivansurf2011@hotmail.com",
+].filter(Boolean));
+
 export function isAdminUser(user: User | null): boolean {
-  return !!user && user.email === ADMIN_EMAIL;
+  return !!user && !!user.email && ADMIN_EMAILS.has(user.email);
 }
 
 // Garante que o documento de negócio do admin existe.
