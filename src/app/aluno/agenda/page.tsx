@@ -32,6 +32,7 @@ export default function StudentAgendaPage() {
  const [activeLocation, setActiveLocation] = useState<LocationId>("maracaipe");
  const [weekStart, setWeekStart] = useState<Date>(() => mondayOf(new Date()));
  const [doneKeys, setDoneKeys] = useState<Set<string>>(new Set());
+ const [bookError, setBookError] = useState("");
  const [pending, setPending] = useState<{ session: Session; key: string } | null>(null);
 
  const todayStr = fmtDate(new Date());
@@ -157,7 +158,7 @@ export default function StudentAgendaPage() {
  </div>
  ) : activeHours.length === 0 ? (
  <p style={{ padding: "32px 20px", textAlign: "center", fontSize: "13px", color: "var(--text-3)" }}>
- Nenhum horário disponível nesta semana. Use a seta › para ver as próximas.
+ Nenhum horário disponível nesta semana. Use a seta → para ver as próximas.
  </p>
  ) : (
  <table style={{ width: "100%", minWidth: "460px", fontSize: "13px" }}>
@@ -218,7 +219,13 @@ export default function StudentAgendaPage() {
  </div>
  </div>
 
- {pending && user && (
+ {bookError && (
+       <div style={{ margin: "12px 0", padding: "12px 16px", borderRadius: "10px", background: "var(--red-dim)", border: "1px solid var(--red)", fontSize: "13px", color: "var(--red)" }}>
+         {bookError}
+       </div>
+     )}
+
+     {pending && user && (
  <BookingModal
  session={pending.session}
  user={user}
@@ -243,8 +250,8 @@ export default function StudentAgendaPage() {
 }
 
 // ─── Modal de confirmação de agendamento ──────────────────────────────────
-function BookingModal({ session, user, onClose, onConfirmed }: {
- session: Session; user: User; onClose: () => void; onConfirmed: () => void;
+function BookingModal({ session, user, onClose, onConfirmed, onError }: {
+ session: Session; user: User; onClose: () => void; onConfirmed: () => void; onError?: (msg: string) => void;
 }) {
  const loc = getLocation(session.location);
  const [credits, setCredits] = useState<number | null>(null);
@@ -279,7 +286,7 @@ function BookingModal({ session, user, onClose, onConfirmed }: {
  onConfirmed();
  } catch (e) {
  console.error("[reserve]", e);
- alert("Não foi possível reservar. O horário pode ter lotado — atualize a página.");
+ onError?.("Não foi possível reservar. O horário pode ter lotado.");
  setSaving(false);
  }
  }

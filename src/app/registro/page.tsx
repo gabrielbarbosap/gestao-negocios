@@ -169,12 +169,12 @@ function RegisterForm() {
                   {label}
                 </label>
                 <input type={type} placeholder={placeholder} className="warm-input" {...register(name)} />
-                {errors[name] && <p style={{ fontSize: "12px", color: "#f87171" }}>{errors[name]?.message}</p>}
+                {errors[name] && <p style={{ fontSize: "12px", color: "var(--red)" }}>{errors[name]?.message}</p>}
               </div>
             ))}
 
             {error && (
-              <p style={{ fontSize: "13px", color: "#f87171", background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.18)", borderRadius: "7px", padding: "9px 12px" }}>
+              <p style={{ fontSize: "13px", color: "var(--red)", background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.18)", borderRadius: "7px", padding: "9px 12px" }}>
                 {error}
               </p>
             )}

@@ -29,7 +29,7 @@ export function StudentHeader() {
       {/* Logo + nome */}
       <Link href="/" style={{ display: "flex", alignItems: "center", gap: "9px", textDecoration: "none" }}>
         <div style={{
-          width: "32px", height: "32px", borderRadius: "50%", overflow: "hidden", flexShrink: 0,
+          width: "32px", height: "40px", borderRadius: "50%", overflow: "hidden", flexShrink: 0,
           border: "1.5px solid rgba(232,97,42,0.3)",
           boxShadow: "0 0 10px rgba(232,97,42,0.15)",
         }}>

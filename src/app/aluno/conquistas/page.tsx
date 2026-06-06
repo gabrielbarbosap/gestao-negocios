@@ -122,7 +122,7 @@ export default function ConquistasPage() {
 
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", padding: "48px" }}>
-          <CircleNotch size={24} className="ph-spin" style={{ color: "var(--text-3)" }} />
+          <CircleNotch size={24} className="ph-spin" style={{ color: "var(--ocean)" }} />
         </div>
       ) : (
         <>

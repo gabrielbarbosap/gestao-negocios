@@ -141,7 +141,7 @@ export default function AlunosPage() {
 
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", padding: "64px" }}>
-          <CircleNotch size={26} className="ph-spin" style={{ color: "var(--text-3)" }} />
+          <CircleNotch size={26} className="ph-spin" style={{ color: "var(--ocean)" }} />
         </div>
       ) : filtered.length === 0 ? (
         <div className="card" style={{ padding: "48px", textAlign: "center" }}>

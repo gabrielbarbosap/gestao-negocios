@@ -190,16 +190,16 @@ export function PublicSchedule() {
                     return (
                       <td key={d.toISOString()} style={{ padding: "5px 3px" }}>
                         {done ? (
-                          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "32px", width: "100%", maxWidth: "46px", margin: "0 auto", borderRadius: "8px", background: "rgba(232,97,42,0.18)", border: "1px solid rgba(46,191,181,0.5)", color: "var(--ocean)" }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "40px", width: "100%", maxWidth: "46px", margin: "0 auto", borderRadius: "8px", background: "rgba(232,97,42,0.18)", border: "1px solid rgba(46,191,181,0.5)", color: "var(--ocean)" }}>
                             <Check size={14} weight="bold" />
                           </div>
                         ) : on ? (
                           <button onClick={() => handleBook(d, h)} className="slot-on"
-                            style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "32px", width: "100%", maxWidth: "46px", margin: "0 auto" }}>
+                            style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "40px", width: "100%", maxWidth: "46px", margin: "0 auto" }}>
                             ●
                           </button>
                         ) : (
-                          <div className="slot-off" style={{ height: "32px", width: "100%", maxWidth: "46px", margin: "0 auto" }} />
+                          <div className="slot-off" style={{ height: "40px", width: "100%", maxWidth: "46px", margin: "0 auto" }} />
                         )}
                       </td>
                     );

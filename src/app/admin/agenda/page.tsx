@@ -141,7 +141,7 @@ export default function AgendaPage() {
       {/* ── Conteúdo ─────────────────────────────────────────────────────── */}
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", padding: "60px" }}>
-          <CircleNotch size={26} className="ph-spin" style={{ color: "var(--text-3)" }} />
+          <CircleNotch size={26} className="ph-spin" style={{ color: "var(--ocean)" }} />
         </div>
       ) : dayClasses.length === 0 ? (
         <div className="card" style={{ padding: "56px 24px", textAlign: "center" }}>

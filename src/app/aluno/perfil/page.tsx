@@ -95,7 +95,7 @@ export default function PerfilPage() {
 
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", padding: "48px" }}>
-          <CircleNotch size={24} className="ph-spin" style={{ color: "var(--text-3)" }} />
+          <CircleNotch size={24} className="ph-spin" style={{ color: "var(--ocean)" }} />
         </div>
       ) : (
         <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -161,7 +161,7 @@ export default function PerfilPage() {
           </div>
 
           {error && (
-            <p style={{ fontSize: "13px", color: "#f87171", background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.18)", borderRadius: "8px", padding: "10px 14px" }}>
+            <p style={{ fontSize: "13px", color: "var(--red)", background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.18)", borderRadius: "8px", padding: "10px 14px" }}>
               {error}
             </p>
           )}

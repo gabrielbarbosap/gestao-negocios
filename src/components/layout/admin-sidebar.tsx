@@ -42,7 +42,7 @@ export function AdminSidebar() {
  onClick={() => logout()}
  className="nav-link"
  style={{ width: "100%", background: "none", border: "none", cursor: "pointer" }}
- onMouseEnter={e => {(e.currentTarget as HTMLElement).style.color = "#f87171"; (e.currentTarget as HTMLElement).style.background = "rgba(248,113,113,0.06)";}}
+ onMouseEnter={e => {(e.currentTarget as HTMLElement).style.color = "var(--red)"; (e.currentTarget as HTMLElement).style.background = "rgba(248,113,113,0.06)";}}
  onMouseLeave={e => {(e.currentTarget as HTMLElement).style.color = ""; (e.currentTarget as HTMLElement).style.background = "";}}
  >
  <SignOut size={15} style={{ flexShrink: 0 }} />

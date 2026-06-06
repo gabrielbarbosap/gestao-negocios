@@ -185,6 +185,7 @@ body {
 /* ─── Schedule slot ─────────────────────────────────────────────────────── */
 
 .slot-on {
+  min-height: 40px;
   background: rgba(0, 180, 200, 0.1);
   border: 1.5px solid rgba(0, 180, 200, 0.35);
   color: var(--ocean-dark);
@@ -201,6 +202,7 @@ body {
 }
 
 .slot-off {
+  min-height: 40px;
   background: rgba(26, 61, 92, 0.04);
   border: 1px solid rgba(26, 61, 92, 0.08);
   border-radius: 8px;
@@ -335,7 +337,7 @@ body {
 }
 .admin-close { display: none; }
 
-@media (max-width: 860px) {
+@media (max-width: 768px) {
   .admin-shell { flex-direction: column; height: auto; min-height: 100vh; overflow: visible; }
   .admin-main  { overflow-y: visible; }
   .admin-topbar { display: flex; }
@@ -412,6 +414,20 @@ body {
 
 @media (max-width: 640px) {
   .card { border-radius: 12px; }
+
+  /* Botões primários: mínimo 48px de altura para toque */
+  .btn-primary, .btn-outline { min-height: 48px; }
+
+  /* Pacotes: coluna em mobile */
+  .pkg-card-inner { flex-direction: column !important; align-items: stretch !important; }
+
+  /* Scroll hint em tabelas horizontais */
+  .card[style*="overflowX"] {
+    background:
+      linear-gradient(to right, white 30%, rgba(255,255,255,0)) left,
+      linear-gradient(to left, white 30%, rgba(255,255,255,0)) right;
+    background-attachment: local, local;
+  }
 }
 
 @supports (padding-bottom: env(safe-area-inset-bottom)) {

@@ -145,7 +145,7 @@ function LoginForm() {
  E-mail
  </label>
  <input type="email" placeholder="seu@email.com" className="warm-input" {...register("email")} />
- {errors.email && <p style={{ fontSize: "12px", color: "#f87171" }}>{errors.email.message}</p>}
+ {errors.email && <p style={{ fontSize: "12px", color: "var(--red)" }}>{errors.email.message}</p>}
  </div>
 
  <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
@@ -153,11 +153,11 @@ function LoginForm() {
  Senha
  </label>
  <input type="password" placeholder="••••••••" className="warm-input" {...register("password")} />
- {errors.password && <p style={{ fontSize: "12px", color: "#f87171" }}>{errors.password.message}</p>}
+ {errors.password && <p style={{ fontSize: "12px", color: "var(--red)" }}>{errors.password.message}</p>}
  </div>
 
  {error && (
- <p style={{ fontSize: "13px", color: "#f87171", background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.18)", borderRadius: "7px", padding: "9px 12px" }}>
+ <p style={{ fontSize: "13px", color: "var(--red)", background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.18)", borderRadius: "7px", padding: "9px 12px" }}>
  {error}
  </p>
  )}
