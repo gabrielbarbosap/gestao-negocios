@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X, Camera, ArrowUpRight, Drop } from "@phosphor-icons/react";
+import Image from "next/image";
+import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X, Camera, ArrowUpRight } from "@phosphor-icons/react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useStudentReservations } from "@/hooks/useStudentReservations";
@@ -25,7 +26,8 @@ function canCancel(r: Reservation): boolean {
 
 export default function StudentHomePage() {
   const { user, reservations, loading, refresh } = useStudentReservations();
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const _now = new Date();
+  const todayStr = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, "0")}-${String(_now.getDate()).padStart(2, "0")}`;
   const businessId = process.env.NEXT_PUBLIC_BUSINESS_ID!;
   const [profileComplete, setProfileComplete] = useState(true);
   const [parafinas, setParafinas] = useState<number | null>(null);
@@ -81,8 +83,8 @@ export default function StudentHomePage() {
           border: `1px solid ${parafinas > 0 ? "rgba(232,97,42,0.2)" : "var(--border)"}`,
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: parafinas > 0 ? "var(--coral)" : "var(--bg-3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <Drop size={20} weight="fill" style={{ color: parafinas > 0 ? "#fff" : "var(--text-3)" }} />
+            <div style={{ width: "42px", height: "42px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Image src="/parafina.png" alt="parafina" width={42} height={42} style={{ objectFit: "contain", opacity: parafinas > 0 ? 1 : 0.35 }} />
             </div>
             <div>
               <p className="font-display" style={{ fontSize: "1.6rem", color: parafinas > 0 ? "var(--coral)" : "var(--text-3)", lineHeight: 1 }}>
@@ -96,7 +98,7 @@ export default function StudentHomePage() {
             </div>
           </div>
           {parafinas === 0 && (
-            <Link href="/aluno/pacotes" className="btn-primary" style={{ fontSize: "12px", padding: "8px 14px", textDecoration: "none", whiteSpace: "nowrap" }}>
+            <Link href="/aluno/pacotes" className="btn-primary" style={{ fontSize: "12px", padding: "14px", textDecoration: "none", whiteSpace: "nowrap" }}>
               Comprar
             </Link>
           )}
@@ -157,7 +159,7 @@ export default function StudentHomePage() {
       )}
 
       {/* Card guardei.art */}
-      <a
+      {/* <a
         href="https://guardei.art"
         target="_blank"
         rel="noopener noreferrer"
@@ -183,7 +185,7 @@ export default function StudentHomePage() {
           </div>
           <ArrowUpRight size={16} style={{ color: "var(--text-3)", flexShrink: 0 }} />
         </div>
-      </a>
+      </a> */}
 
       <style>{`
         .ph-spin { animation: ph-spin 0.9s linear infinite; }
@@ -216,7 +218,7 @@ function ReservationCard({ r, past, onCancel }: { r: Reservation; past?: boolean
   return (
     <div className="card" style={{ padding: "14px 16px", opacity: past ? 0.6 : 1 }}>
       <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-        <div style={{ textAlign: "center", minWidth: "84px" }}>
+        <div style={{ textAlign: "center", minWidth: "84px", display: 'contents' }}>
           <Clock size={13} style={{ color: "var(--text-2)" }} />
           <p className="font-display" style={{ fontSize: "0.95rem", color: "var(--text-1)", lineHeight: 1.15, marginTop: "2px", whiteSpace: "nowrap" }}>
             {formatTime(r.startTime)}–{formatTime(r.endTime)}
@@ -241,9 +243,9 @@ function ReservationCard({ r, past, onCancel }: { r: Reservation; past?: boolean
           {!past && canCancel(r) && onCancel && !confirming && (
             <button
               onClick={() => setConfirming(true)}
-              style={{ background: "none", border: "none", cursor: "pointer", fontSize: "11px", color: "var(--text-3)", padding: "2px 0", display: "flex", alignItems: "center", gap: "3px" }}
+              style={{ background: "rgba(229,62,62,0.08)", border: "1px solid rgba(229,62,62,0.25)", borderRadius: "6px", cursor: "pointer", fontSize: "11.5px", color: "#c53030", padding: "4px 10px", display: "flex", alignItems: "center", gap: "4px", fontFamily: "inherit", fontWeight: 600 }}
             >
-              <X size={11} /> Cancelar
+              <X size={11} /> Cancelar aula
             </button>
           )}
         </div>

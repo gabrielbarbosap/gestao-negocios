@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { CaretLeft, CaretRight, CircleNotch, Check, MapPin, Clock, Ticket, Wallet, X, UserCircle } from "@phosphor-icons/react";
+import Image from "next/image";
+import { CaretLeft, CaretRight, CircleNotch, Check, MapPin, Clock, Wallet, X, UserCircle } from "@phosphor-icons/react";
 import { useAuthStore } from "@/store/auth";
 import { useAuth } from "@/hooks/useAuth";
 import { LOCATIONS, getLocation, type LocationId } from "@/constants/locations";
@@ -351,7 +352,7 @@ function BookingModal({ session, user, onClose, onConfirmed }: {
         </div>
 
         <div className="card" style={{ padding: "14px 16px", marginBottom: "16px", background: "var(--bg-3)", display: "flex", alignItems: "center", gap: "12px" }}>
-          <Ticket size={20} style={{ color: hasCredits ? "var(--teal-light)" : "var(--text-3)" }} />
+          <Image src="/parafina.png" alt="parafina" width={28} height={28} style={{ objectFit: "contain", opacity: hasCredits ? 1 : 0.35, flexShrink: 0 }} />
           {credits === null ? (
             <CircleNotch size={16} className="ph-spin" style={{ color: "var(--text-3)" }} />
           ) : (

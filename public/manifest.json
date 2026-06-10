@@ -1,0 +1,24 @@
+{
+  "name": "Ivan Silva Surf School",
+  "short_name": "Ivan Surf",
+  "description": "Agende sua aula de surf em Maracaipe e Praia do Borete.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#E8612A",
+  "background_color": "#FAF7F2",
+  "icons": [
+    {
+      "src": "/escola/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/escola/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

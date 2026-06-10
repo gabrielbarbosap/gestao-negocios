@@ -2,7 +2,8 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { CircleNotch, Star, Lightning, Package } from "@phosphor-icons/react";
+import Image from "next/image";
+import { CircleNotch } from "@phosphor-icons/react";
 import { useStudentReservations } from "@/hooks/useStudentReservations";
 
 const PACKAGES = [
@@ -12,7 +13,6 @@ const PACKAGES = [
  credits: 1,
  price: 100,
  pricePerClass: 100,
- icon: Lightning,
  highlight: false,
  badge: null,
  },
@@ -22,7 +22,6 @@ const PACKAGES = [
  credits: 4,
  price: 320,
  pricePerClass: 80,
- icon: Star,
  highlight: true,
  badge: "Mais recomendado",
  },
@@ -32,7 +31,6 @@ const PACKAGES = [
  credits: 8,
  price: 640,
  pricePerClass: 80,
- icon: Package,
  highlight: false,
  badge: null,
  },
@@ -94,7 +92,6 @@ function PacotesContent() {
 
  <div style={{ display: "flex", flexDirection: "column", gap: "14px", marginBottom: "28px" }}>
  {PACKAGES.map((pkg) => {
- const Icon = pkg.icon;
  const isLoading = loading === pkg.priceId;
  return (
  <div
@@ -125,7 +122,7 @@ function PacotesContent() {
  background: pkg.highlight ? "rgba(56,193,180,0.12)" : "var(--surface-2)",
  display: "flex", alignItems: "center", justifyContent: "center",
  }}>
- <Icon size={20} style={{ color: pkg.highlight ? "var(--teal-light)" : "var(--text-2)" }} />
+ <Image src="/parafina.png" alt="parafina" width={30} height={30} style={{ objectFit: "contain" }} />
  </div>
  <div>
  <p style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-1)" }}>{pkg.name}</p>

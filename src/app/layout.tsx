@@ -27,6 +27,15 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Ivan Silva Surf School",
   description: "Agende sua aula de surf em Maracaipe e Praia do Borete.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Ivan Surf",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 export default function RootLayout({
@@ -36,6 +45,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className={`${bebasNeue.variable} ${nunito.variable} ${inter.variable} h-full`}>
+      <head>
+        <link rel="apple-touch-icon" href="/escola/logo.jpg" />
+      </head>
       <body className="min-h-full antialiased">{children}</body>
     </html>
   );
