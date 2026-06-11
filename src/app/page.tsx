@@ -93,7 +93,7 @@ export default function HomePage() {
  </div>
 
  <p style={{ color: "var(--text-2)", fontSize: "14px", lineHeight: 1.65, maxWidth: "300px", margin: "0 auto 20px" }}>
- Agende sua aula, evolua no surf e colecione conquistas.
+ Agende sua aula, evolua no surf e colecione conquistas!
  </p>
 
  {/* Partiu.life badge */}

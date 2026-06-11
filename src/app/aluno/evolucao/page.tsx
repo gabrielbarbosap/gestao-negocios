@@ -21,7 +21,7 @@ export default function EvolucaoPage() {
         </div>
       </div>
 
-      <Card className="mt-4">
+      {/* <Card className="mt-4">
         <CardContent className="pt-4">
           <h3 className="font-semibold text-slate-900 mb-2">Registro de fotografias</h3>
           <p className="text-sm text-slate-500 mb-3">
@@ -36,7 +36,7 @@ export default function EvolucaoPage() {
              Registrar fotos no guardei.art
           </a>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }

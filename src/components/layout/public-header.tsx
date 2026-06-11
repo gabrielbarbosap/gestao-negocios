@@ -89,7 +89,7 @@ export function PublicHeader() {
                 >
                   Entrar
                 </Link>
-                <Link href="/registro" className="btn-primary" style={{ fontSize: "13px", padding: "7px 14px", textDecoration: "none" }}>
+                <Link href="/registro" className="btn-primary" style={{ fontSize: "13px", padding: "14px", textDecoration: "none" }}>
                   Criar conta
                 </Link>
               </>
