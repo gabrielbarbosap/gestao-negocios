@@ -13,6 +13,17 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        // Páginas HTML — nunca cachear, sempre buscar versão nova
+        source: "/((?!_next/static|_next/image|.*\\.(?:jpg|jpeg|png|svg|ico|webp|json|woff2?)).*)",
+        headers: [
+          { key: "Cache-Control", value: "no-store, must-revalidate" },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
