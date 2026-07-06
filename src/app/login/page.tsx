@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { signIn, signInWithGoogle, auth, onAuthStateChanged } from "@/lib/firebase/auth";
 // auth e onAuthStateChanged usados em LoginPage (fora do Suspense)
-import { ADMIN_EMAIL } from "@/hooks/useAuth";
+import { isAdminUser } from "@/hooks/useAuth";
 
 const schema = z.object({
  email: z.string().email("E-mail inválido"),
@@ -49,17 +49,12 @@ function LoginForm() {
  resolver: zodResolver(schema),
  });
 
- function resolveRedirect(email: string | null) {
- return email === ADMIN_EMAIL ? "/admin" : redirectTo;
- }
-
-
  // ── Email / senha ───────────────────────────────────────────────────────
  async function onSubmit(data: FormData) {
  try {
  setError("");
  const credential = await signIn(data.email, data.password);
- router.push(resolveRedirect(credential.user.email));
+ router.push(isAdminUser(credential.user) ? "/admin" : redirectTo);
  } catch {
  setError("E-mail ou senha incorretos.");
  }
@@ -192,8 +187,7 @@ export default function LoginPage() {
  const unsub = onAuthStateChanged(auth, (user) => {
  if (user) {
  unsub();
- const dest = user.email === ADMIN_EMAIL ? "/admin" : "/aluno";
- router.push(dest);
+ router.push(isAdminUser(user) ? "/admin" : "/aluno");
  }
  });
  return unsub;

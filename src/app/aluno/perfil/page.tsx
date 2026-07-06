@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useStudentReservations } from "@/hooks/useStudentReservations";
 import { CircleNotch, Check, User, Phone, Calendar } from "@phosphor-icons/react";
@@ -47,12 +47,12 @@ export default function PerfilPage() {
     setSaving(true);
     setError("");
     try {
-      await updateDoc(doc(db, `businesses/${businessId}/customers/${user.uid}`), {
+      await setDoc(doc(db, `businesses/${businessId}/customers/${user.uid}`), {
         name: name.trim(),
         phone: phone.trim(),
         birthDate,
         updatedAt: serverTimestamp(),
-      });
+      }, { merge: true });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (e) {

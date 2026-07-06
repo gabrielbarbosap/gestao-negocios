@@ -19,10 +19,15 @@ export function isAdminUser(user: User | null): boolean {
   return !!user && !!user.email && ADMIN_EMAILS.has(user.email);
 }
 
-// Garante que o documento de negócio do admin existe.
-// Chamado apenas quando o admin faz login pela primeira vez.
+// Um único negócio, com múltiplos admins (uids diferentes) — o businessId
+// é sempre este id fixo, nunca o uid de quem logou (ver useBusinessId.ts e
+// firestore.rules `isBizAdmin()`).
+export const BUSINESS_ID = process.env.NEXT_PUBLIC_BUSINESS_ID ?? "";
+
+// Garante que o documento do negócio existe. Roda a cada login de admin,
+// mas só escreve na primeira vez (bootstrap) — depois disso é no-op.
 async function ensureAdminBusiness(user: User) {
-  const ref = doc(db, "businesses", user.uid);
+  const ref = doc(db, "businesses", BUSINESS_ID);
   const snap = await getDoc(ref);
   if (snap.exists()) return;
 
@@ -30,7 +35,7 @@ async function ensureAdminBusiness(user: User) {
     name: "Ivan Silva Surf School",
     slug: generateSlug("Ivan Silva Surf School"),
     type: "surf",
-    ownerUid: user.uid,
+    ownerUid: BUSINESS_ID,
     ownerEmail: user.email,
     status: "active",
     settings: {

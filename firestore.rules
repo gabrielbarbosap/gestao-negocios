@@ -3,6 +3,19 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Único negócio, com mais de um admin (Ivan e Gabriel) logando com uids
+    // diferentes. Antes a regra exigia request.auth.uid == businessId, o que
+    // só funcionava para quem criou o negócio (uid == businessId por design).
+    // Agora qualquer uid desta lista é tratado como admin do negócio,
+    // independente do path businessId. Se um novo admin entrar, adicione o
+    // uid aqui também (e em ADMIN_EMAILS / useAuth.ts no client).
+    function isBizAdmin() {
+      return request.auth != null && (
+        request.auth.uid == "1wLgfQXpYAOZMmXDZzZicurIFFT2"
+        || request.auth.uid == "q9D5H72UFrZZDMcoS2ENXvAvrzL2"
+      );
+    }
+
     // ── Collection group: sessions ──────────────────────────────────────
     // Leitura pública: a landing mostra os horários disponíveis sem login e
     // o aluno consulta sem conhecer o businessId (query collectionGroup).
@@ -19,35 +32,33 @@ service cloud.firestore {
     }
 
     // ── Business ────────────────────────────────────────────────────────
-    // businessId === ownerUid (por design do sistema)
-    // Isso elimina o problema de resource == null em documentos que ainda
-    // não existem — não precisamos checar resource.data.ownerUid.
     match /businesses/{businessId} {
-      allow read:   if request.auth != null
-                    && request.auth.uid == businessId;
-
-      allow create: if request.auth != null
-                    && request.auth.uid == businessId
-                    && request.resource.data.ownerUid == request.auth.uid;
-
-      allow update: if request.auth != null
-                    && resource.data.ownerUid == request.auth.uid;
-
+      allow read:   if isBizAdmin();
+      allow create: if isBizAdmin();
+      allow update: if isBizAdmin();
       allow delete: if false; // nunca deletar um negócio via cliente
 
       // ── Customers ──────────────────────────────────────────────────
       match /customers/{customerId} {
         // Admin lê e escreve todos; aluno lê só o próprio perfil
         allow read:  if request.auth != null
-                     && (request.auth.uid == businessId
-                         || request.auth.uid == customerId);
-        allow create, delete: if request.auth != null
-                              && request.auth.uid == businessId;
+                     && (isBizAdmin() || request.auth.uid == customerId);
+        // Admin cria/apaga qualquer um; aluno pode criar o PRÓPRIO cadastro
+        // (registro) desde que não comece com créditos já carregados.
+        allow create: if request.auth != null && (
+          isBizAdmin()
+          || (
+            request.auth.uid == customerId
+            && (!('creditBalance' in request.resource.data) || request.resource.data.creditBalance == 0)
+          )
+        );
+        allow delete: if isBizAdmin();
         // Admin atualiza livremente; aluno pode:
         //   1. Gastar/receber crédito (reserva/cancelamento)
         //   2. Atualizar o próprio perfil (phone, birthDate, name)
+        //   3. Registrar conquistas/xp/level
         allow update: if request.auth != null && (
-          request.auth.uid == businessId
+          isBizAdmin()
           || (
             request.auth.uid == customerId
             && request.resource.data.diff(resource.data).affectedKeys()
@@ -76,12 +87,11 @@ service cloud.firestore {
         // Qualquer autenticado pode ver os horários disponíveis
         allow read:   if request.auth != null;
         // Só o admin cria/remove aulas
-        allow create, delete: if request.auth != null
-                              && request.auth.uid == businessId;
+        allow create, delete: if isBizAdmin();
         // Admin atualiza livremente; aluno pode incrementar 1 (reserva) ou
         // decrementar 1 (cancelamento), nunca ultrapassar o máximo nem ficar negativo.
         allow update: if request.auth != null && (
-          request.auth.uid == businessId
+          isBizAdmin()
           || (
             request.resource.data.diff(resource.data).affectedKeys()
               .hasOnly(['currentCapacity', 'updatedAt'])
@@ -99,16 +109,14 @@ service cloud.firestore {
       match /reservations/{reservationId} {
         // Admin vê todas; aluno vê as próprias
         allow read:  if request.auth != null
-                     && (request.auth.uid == businessId
-                         || resource.data.customerId == request.auth.uid);
+                     && (isBizAdmin() || resource.data.customerId == request.auth.uid);
         // Aluno cria a própria reserva; admin gerencia (confirmar, cancelar)
         allow create: if request.auth != null
-                      && (request.auth.uid == businessId
-                          || request.resource.data.customerId == request.auth.uid);
+                      && (isBizAdmin() || request.resource.data.customerId == request.auth.uid);
         // Aluno pode: 1. cancelar a própria reserva (status → cancelled) ou
         // 2. reportar pagamento pix (status reserved → confirmed)
         allow update: if request.auth != null && (
-          request.auth.uid == businessId
+          isBizAdmin()
           || (
             resource.data.customerId == request.auth.uid
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
@@ -124,27 +132,22 @@ service cloud.firestore {
             && request.resource.data.status == 'confirmed'
           )
         );
-        allow delete: if request.auth != null
-                      && request.auth.uid == businessId;
+        allow delete: if isBizAdmin();
       }
 
       // ── Progress Logs ──────────────────────────────────────────────
       match /progress-logs/{logId} {
         allow read:  if request.auth != null
-                     && (request.auth.uid == businessId
-                         || resource.data.customerId == request.auth.uid);
-        allow write: if request.auth != null
-                     && request.auth.uid == businessId;
+                     && (isBizAdmin() || resource.data.customerId == request.auth.uid);
+        allow write: if isBizAdmin();
       }
 
       // ── Payments ───────────────────────────────────────────────────
       match /payments/{paymentId} {
         allow read:  if request.auth != null
-                     && (request.auth.uid == businessId
-                         || resource.data.customerId == request.auth.uid);
+                     && (isBizAdmin() || resource.data.customerId == request.auth.uid);
         allow create: if request.auth != null;
-        allow update: if request.auth != null
-                      && request.auth.uid == businessId;
+        allow update: if isBizAdmin();
         allow delete: if false;
       }
 
@@ -152,8 +155,7 @@ service cloud.firestore {
       match /packages/{packageId} {
         // Qualquer autenticado vê os pacotes disponíveis
         allow read:  if request.auth != null;
-        allow write: if request.auth != null
-                     && request.auth.uid == businessId;
+        allow write: if isBizAdmin();
       }
     }
   }
