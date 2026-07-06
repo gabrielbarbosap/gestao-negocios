@@ -5,7 +5,7 @@
 //  sessão para consultas fáceis (reservas do dia / do aluno).
 // ════════════════════════════════════════════════════════════════════════
 import {
-  collection, collectionGroup, doc, getDoc, getDocs, query, where, writeBatch, serverTimestamp, increment,
+  collection, collectionGroup, doc, getDoc, getDocs, query, where, writeBatch, serverTimestamp, increment, updateDoc,
 } from "firebase/firestore";
 import { db } from "./config";
 import { queryDocuments } from "./firestore";
@@ -34,11 +34,13 @@ export async function fetchMyReservations(customerId: string): Promise<Reservati
 
 // ─── Aluno: cria uma reserva ──────────────────────────────────────────────
 // Num único batch: cria a reserva, ocupa a vaga na sessão e, se pagar com
-// crédito, desconta 1 do saldo do aluno. `payOnArrival` paga na hora (0 crédito).
+// crédito, desconta 1 do saldo do aluno. `payWithPix` reserva o horário sem
+// crédito; o aluno paga por fora (chave PIX) e reporta o pagamento depois
+// (ver `confirmPixPayment`) — só então a aula fica "confirmed".
 export async function createReservation(
   session: Session,
   customer: { id: string; name: string },
-  opts: { payOnArrival: boolean },
+  opts: { payWithPix: boolean },
 ): Promise<void> {
   const base = `businesses/${session.businessId}`;
   const batch = writeBatch(db);
@@ -53,9 +55,9 @@ export async function createReservation(
     location: session.location,
     customerId: customer.id,
     customerName: customer.name,
-    status: "reserved",
-    payment: opts.payOnArrival ? "on_arrival" : "credit",
-    creditsUsed: opts.payOnArrival ? 0 : 1,
+    status: opts.payWithPix ? "reserved" : "confirmed",
+    payment: opts.payWithPix ? "pix" : "credit",
+    creditsUsed: opts.payWithPix ? 0 : 1,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -64,7 +66,7 @@ export async function createReservation(
     currentCapacity: increment(1), updatedAt: serverTimestamp(),
   });
 
-  if (!opts.payOnArrival) {
+  if (!opts.payWithPix) {
     batch.update(doc(db, `${base}/customers`, customer.id), {
       creditBalance: increment(-1), updatedAt: serverTimestamp(),
     });
@@ -73,10 +75,30 @@ export async function createReservation(
   await batch.commit();
 }
 
+// ─── Aluno: reporta que já pagou o PIX da reserva ─────────────────────────
+// Só o próprio aluno reporta; vale apenas para reservas em pix ainda não
+// confirmadas. A partir daqui a aula aparece como "confirmed".
+export async function confirmPixPayment(reservation: Reservation): Promise<void> {
+  if (reservation.payment !== "pix" || reservation.status !== "reserved") return;
+  await updateDoc(doc(db, `businesses/${reservation.businessId}/reservations`, reservation.id), {
+    status: "confirmed",
+    updatedAt: serverTimestamp(),
+  });
+}
+
 // ─── Aluno: cancela a própria reserva ────────────────────────────────────
-// Num único batch: marca a reserva como cancelada, libera a vaga na sessão
-// e, se o aluno pagou com crédito, devolve 1 crédito ao saldo.
+// Só é permitido até 24h antes do início da aula. Num único batch: marca a
+// reserva como cancelada, libera a vaga na sessão e devolve 1 crédito ao
+// saldo — tanto para quem pagou com crédito quanto para quem pagou via pix
+// e já tinha o pagamento confirmado (o crédito devolvido vira parafina para
+// usar em outra aula).
 export async function cancelReservation(reservation: Reservation, customerId: string): Promise<void> {
+  const classStart = new Date(`${reservation.date}T${reservation.startTime}:00`);
+  const hoursUntilClass = (classStart.getTime() - Date.now()) / (1000 * 60 * 60);
+  if (hoursUntilClass < 24) {
+    throw new Error("Cancelamentos só podem ser feitos até 24h antes da aula.");
+  }
+
   const base = `businesses/${reservation.businessId}`;
   const batch = writeBatch(db);
 
@@ -89,7 +111,10 @@ export async function cancelReservation(reservation: Reservation, customerId: st
     currentCapacity: increment(-1), updatedAt: serverTimestamp(),
   });
 
-  if (reservation.creditsUsed > 0) {
+  const refundsCredit = reservation.creditsUsed > 0
+    || (reservation.payment === "pix" && reservation.status === "confirmed");
+
+  if (refundsCredit) {
     batch.update(doc(db, `${base}/customers`, customerId), {
       creditBalance: increment(1), updatedAt: serverTimestamp(),
     });

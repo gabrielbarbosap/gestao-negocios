@@ -3,25 +3,22 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X, Camera, ArrowUpRight } from "@phosphor-icons/react";
+import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X, Camera, ArrowUpRight, Wallet } from "@phosphor-icons/react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useStudentReservations } from "@/hooks/useStudentReservations";
-import { cancelReservation } from "@/lib/firebase/reservations";
+import { cancelReservation, confirmPixPayment } from "@/lib/firebase/reservations";
 import { getLocation } from "@/constants/locations";
 import { formatTime } from "@/lib/utils";
+import { PIX_KEY_CPF_FORMATTED, WHATSAPP_PHONE_FORMATTED } from "@/constants/payment";
 import type { Reservation } from "@/types/reservation";
 
+// Cancelamento só é permitido até 24h antes do início da aula.
 function canCancel(r: Reservation): boolean {
   if (r.status === "completed" || r.status === "cancelled") return false;
-  const now = new Date();
-  // Usa horário local (Brasil) para comparar
-  const pad = (n: number) => String(n).padStart(2, "0");
-  const todayLocal = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-  const nowTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  if (r.date > todayLocal) return true;
-  if (r.date === todayLocal) return r.startTime > nowTime;
-  return false;
+  const classStart = new Date(`${r.date}T${r.startTime}:00`);
+  const hoursUntilClass = (classStart.getTime() - Date.now()) / (1000 * 60 * 60);
+  return hoursUntilClass >= 24;
 }
 
 export default function StudentHomePage() {
@@ -59,6 +56,11 @@ export default function StudentHomePage() {
   async function handleCancel(r: Reservation) {
     if (!user) return;
     await cancelReservation(r, user.uid);
+    refresh();
+  }
+
+  async function handleConfirmPix(r: Reservation) {
+    await confirmPixPayment(r);
     refresh();
   }
 
@@ -143,7 +145,7 @@ export default function StudentHomePage() {
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "28px" }}>
-              {proximas.map((r) => <ReservationCard key={r.id} r={r} onCancel={handleCancel} />)}
+              {proximas.map((r) => <ReservationCard key={r.id} r={r} onCancel={handleCancel} onConfirmPix={handleConfirmPix} />)}
             </div>
           )}
 
@@ -195,10 +197,15 @@ export default function StudentHomePage() {
   );
 }
 
-function ReservationCard({ r, past, onCancel }: { r: Reservation; past?: boolean; onCancel?: (r: Reservation) => Promise<void> }) {
+function ReservationCard({ r, past, onCancel, onConfirmPix }: {
+  r: Reservation; past?: boolean; onCancel?: (r: Reservation) => Promise<void>; onConfirmPix?: (r: Reservation) => Promise<void>;
+}) {
   const loc = getLocation(r.location);
   const [confirming, setConfirming] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState("");
+  const [confirmingPix, setConfirmingPix] = useState(false);
+  const pixPending = r.payment === "pix" && r.status === "reserved";
 
   const dateLabel = new Date(r.date + "T00:00:00").toLocaleDateString("pt-BR", {
     weekday: "short", day: "2-digit", month: "short",
@@ -207,11 +214,24 @@ function ReservationCard({ r, past, onCancel }: { r: Reservation; past?: boolean
   async function handleConfirmCancel() {
     if (!onCancel) return;
     setCancelling(true);
+    setCancelError("");
     try {
       await onCancel(r);
+      setConfirming(false);
+    } catch (e) {
+      setCancelError(e instanceof Error ? e.message : "Não foi possível cancelar.");
     } finally {
       setCancelling(false);
-      setConfirming(false);
+    }
+  }
+
+  async function handleConfirmPix() {
+    if (!onConfirmPix) return;
+    setConfirmingPix(true);
+    try {
+      await onConfirmPix(r);
+    } finally {
+      setConfirmingPix(false);
     }
   }
 
@@ -235,9 +255,9 @@ function ReservationCard({ r, past, onCancel }: { r: Reservation; past?: boolean
           <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "11px", fontWeight: 700, color: "var(--ocean)" }}>
             <Check size={12} /> {r.status === "completed" ? "Concluída" : r.status === "confirmed" ? "Confirmada" : "Reservada"}
           </span>
-          {r.payment === "on_arrival" && (
+          {pixPending && (
             <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--gold)", background: "rgba(245,192,48,0.1)", padding: "2px 7px", borderRadius: "99px" }}>
-              Pagar na aula
+              Aguardando pagamento PIX
             </span>
           )}
           {!past && canCancel(r) && onCancel && !confirming && (
@@ -251,24 +271,53 @@ function ReservationCard({ r, past, onCancel }: { r: Reservation; past?: boolean
         </div>
       </div>
 
-      {confirming && (
-        <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
-          <p style={{ fontSize: "12.5px", color: "var(--text-2)" }}>
-            Cancelar esta aula?{r.creditsUsed > 0 ? " Sua parafina será devolvida." : ""}
+      {pixPending && (
+        <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid var(--border)" }}>
+          <p style={{ fontSize: "11.5px", color: "var(--text-2)", lineHeight: 1.6, marginBottom: "10px" }}>
+            Chave PIX (CPF): <strong style={{ color: "var(--text-1)" }}>{PIX_KEY_CPF_FORMATTED}</strong><br />
+            Envie o comprovante no WhatsApp <strong style={{ color: "var(--text-1)" }}>{WHATSAPP_PHONE_FORMATTED}</strong> e depois confirme abaixo.
           </p>
-          <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
-            <button onClick={() => setConfirming(false)} disabled={cancelling} className="btn-outline" style={{ fontSize: "12px", padding: "5px 12px", height: "auto" }}>
-              Não
-            </button>
-            <button
-              onClick={handleConfirmCancel}
-              disabled={cancelling}
-              style={{ fontSize: "12px", padding: "5px 12px", height: "auto", background: "var(--red, #e53e3e)", color: "#fff", border: "none", borderRadius: "8px", cursor: cancelling ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: "5px" }}
-            >
-              {cancelling ? <CircleNotch size={12} className="ph-spin" /> : null}
-              Sim, cancelar
-            </button>
+          <button
+            onClick={handleConfirmPix}
+            disabled={confirmingPix}
+            className="btn-primary"
+            style={{ fontSize: "12.5px", padding: "7px 14px", height: "auto", display: "flex", alignItems: "center", gap: "6px" }}
+          >
+            {confirmingPix ? <CircleNotch size={12} className="ph-spin" /> : <Wallet size={13} />}
+            Já fiz o pagamento
+          </button>
+        </div>
+      )}
+
+      {!past && !canCancel(r) && r.status !== "completed" && r.status !== "cancelled" && (
+        <p style={{ marginTop: "10px", fontSize: "11px", color: "var(--text-3)" }}>
+          Cancelamento indisponível (menos de 24h para a aula).
+        </p>
+      )}
+
+      {confirming && (
+        <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid var(--border)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
+            <p style={{ fontSize: "12.5px", color: "var(--text-2)" }}>
+              Cancelar esta aula?{(r.creditsUsed > 0 || (r.payment === "pix" && r.status === "confirmed")) ? " Sua parafina será devolvida." : ""}
+            </p>
+            <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
+              <button onClick={() => setConfirming(false)} disabled={cancelling} className="btn-outline" style={{ fontSize: "12px", padding: "5px 12px", height: "auto" }}>
+                Não
+              </button>
+              <button
+                onClick={handleConfirmCancel}
+                disabled={cancelling}
+                style={{ fontSize: "12px", padding: "5px 12px", height: "auto", background: "var(--red, #e53e3e)", color: "#fff", border: "none", borderRadius: "8px", cursor: cancelling ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: "5px" }}
+              >
+                {cancelling ? <CircleNotch size={12} className="ph-spin" /> : null}
+                Sim, cancelar
+              </button>
+            </div>
           </div>
+          {cancelError && (
+            <p style={{ marginTop: "8px", fontSize: "11.5px", color: "#c53030" }}>{cancelError}</p>
+          )}
         </div>
       )}
     </div>

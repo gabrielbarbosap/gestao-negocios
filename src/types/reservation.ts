@@ -2,14 +2,15 @@ import { Timestamp } from "firebase/firestore";
 import type { LocationId } from "@/constants/locations";
 
 export type ReservationStatus =
-  | "reserved"    // aluno reservou, aguardando a aula
-  | "confirmed"   // presença confirmada pelo admin
+  | "reserved"    // aluno reservou; se for pix, aguardando confirmação de pagamento
+  | "confirmed"   // pago (crédito já debitado, ou pix marcado como pago pelo aluno)
   | "completed"   // aula realizada
   | "cancelled"   // cancelada
   | "no_show";    // não compareceu
 
-// Como o aluno vai pagar a aula
-export type PaymentMode = "credit" | "on_arrival";
+// Como o aluno vai pagar a aula: crédito (parafina já comprada via Stripe)
+// ou pix (paga na mão e reporta o comprovante — ver src/constants/payment.ts).
+export type PaymentMode = "credit" | "pix";
 
 // Uma reserva de um aluno para uma aula (sessão).
 // Campos de data/hora/local são desnormalizados da sessão para facilitar

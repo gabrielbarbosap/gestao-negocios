@@ -105,7 +105,8 @@ service cloud.firestore {
         allow create: if request.auth != null
                       && (request.auth.uid == businessId
                           || request.resource.data.customerId == request.auth.uid);
-        // Aluno pode cancelar a própria reserva (só muda status → cancelled)
+        // Aluno pode: 1. cancelar a própria reserva (status → cancelled) ou
+        // 2. reportar pagamento pix (status reserved → confirmed)
         allow update: if request.auth != null && (
           request.auth.uid == businessId
           || (
@@ -114,6 +115,13 @@ service cloud.firestore {
             && request.resource.data.status == 'cancelled'
             && resource.data.status != 'cancelled'
             && resource.data.status != 'completed'
+          )
+          || (
+            resource.data.customerId == request.auth.uid
+            && resource.data.payment == 'pix'
+            && resource.data.status == 'reserved'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+            && request.resource.data.status == 'confirmed'
           )
         );
         allow delete: if request.auth != null

@@ -318,9 +318,14 @@ function ClassCard({ s, reservations, dateLabel }: { s: Session; reservations: R
 
                 {/* Badges */}
                 <div style={{ display: "flex", gap: "6px", alignItems: "center", flexShrink: 0 }}>
-                  {r.payment === "on_arrival" && (
+                  {r.payment === "pix" && r.status !== "confirmed" && (
                     <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "11px", fontWeight: 700, color: "var(--gold)", background: "rgba(245,192,48,0.1)", border: "1px solid rgba(245,192,48,0.25)", padding: "3px 9px", borderRadius: "99px", whiteSpace: "nowrap" }}>
-                      <Wallet size={11} /> Pagar na aula
+                      <Wallet size={11} /> PIX pendente
+                    </span>
+                  )}
+                  {r.payment === "pix" && r.status === "confirmed" && (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "11px", fontWeight: 700, color: "var(--ocean)", background: "rgba(46,191,181,0.1)", border: "1px solid rgba(46,191,181,0.25)", padding: "3px 9px", borderRadius: "99px", whiteSpace: "nowrap" }}>
+                      <Wallet size={11} /> PIX pago
                     </span>
                   )}
                   {r.payment === "credit" && (

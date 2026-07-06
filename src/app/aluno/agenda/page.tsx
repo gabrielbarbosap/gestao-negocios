@@ -2,14 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
-import { CaretLeft, CaretRight, CircleNotch, Check, Waves, X, MapPin, Clock, Wallet } from "@phosphor-icons/react";
+import { CaretLeft, CaretRight, CircleNotch, Check, Waves, X, MapPin, Clock, Wallet, CreditCard } from "@phosphor-icons/react";
 import type { User } from "firebase/auth";
 import { useStudentAgenda } from "@/hooks/useStudentAgenda";
 import { createReservation } from "@/lib/firebase/reservations";
 import { fetchCredits } from "@/lib/firebase/customers";
 import { LOCATIONS, getLocation, type LocationId } from "@/constants/locations";
 import { formatTime } from "@/lib/utils";
+import { PIX_KEY_CPF_FORMATTED, WHATSAPP_PHONE_FORMATTED } from "@/constants/payment";
 import type { Session } from "@/types/session";
 
 const DAY_ABBR = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
@@ -256,7 +258,6 @@ function BookingModal({ session, user, onClose, onConfirmed, onError }: {
 }) {
  const loc = getLocation(session.location);
  const [credits, setCredits] = useState<number | null>(null);
- const [payOnArrival, setPayOnArrival] = useState(false);
  const [saving, setSaving] = useState(false);
 
  useEffect(() => {
@@ -273,7 +274,7 @@ function BookingModal({ session, user, onClose, onConfirmed, onError }: {
  const intervalo = `${formatTime(session.startTime)}–${formatTime(session.endTime)}`;
 
  const hasCredits = (credits ?? 0) > 0;
- const canConfirm = credits !== null && (hasCredits || payOnArrival);
+ const canConfirm = credits !== null;
 
  async function confirm() {
  if (!canConfirm || saving) return;
@@ -282,7 +283,7 @@ function BookingModal({ session, user, onClose, onConfirmed, onError }: {
  await createReservation(
  session,
  { id: user.uid, name: user.displayName || user.email || "Aluno" },
- { payOnArrival: !hasCredits },
+ { payWithPix: !hasCredits },
  );
  onConfirmed();
  } catch (e) {
@@ -326,13 +327,30 @@ function BookingModal({ session, user, onClose, onConfirmed, onError }: {
  )}
  </div>
 
- {/* pagar na hora (sem parafinas) */}
+ {/* sem parafinas: pagar com cartão (comprar pacote) ou via pix */}
  {credits !== null && !hasCredits && (
- <label style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px 14px", borderRadius: "10px", border: `1px solid ${payOnArrival ? "var(--border-lit)" : "var(--border)"}`, background: payOnArrival ? "rgba(0,180,200,0.08)" : "transparent", cursor: "pointer", marginBottom: "16px", transition: "all 0.15s" }}>
- <input type="checkbox" checked={payOnArrival} onChange={(e) => setPayOnArrival(e.target.checked)} style={{ width: "16px", height: "16px", accentColor: "var(--teal)" }} />
+ <div style={{ marginBottom: "16px" }}>
+ <p style={{ fontSize: "12.5px", color: "var(--text-2)", marginBottom: "10px" }}>
+ Você não tem parafinas. Pague com cartão comprando um pacote, ou reserve agora e pague esta aula via PIX.
+ </p>
+ <Link href="/aluno/pacotes" onClick={onClose} className="card" style={{ padding: "12px 14px", display: "flex", alignItems: "center", gap: "10px", textDecoration: "none", marginBottom: "10px" }}>
+ <CreditCard size={16} style={{ color: "var(--ocean)", flexShrink: 0 }} />
+ <div>
+ <p style={{ fontSize: "13px", color: "var(--text-1)", fontWeight: 700 }}>Cartão de crédito</p>
+ <p style={{ fontSize: "11.5px", color: "var(--text-2)", marginTop: "1px" }}>Comprar parafinas via Stripe</p>
+ </div>
+ </Link>
+ <div style={{ padding: "12px 14px", borderRadius: "10px", border: "1px solid var(--border-lit)", background: "rgba(0,180,200,0.06)" }}>
+ <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
  <Wallet size={16} style={{ color: "var(--gold)" }} />
- <span style={{ fontSize: "13px", color: "var(--text-1)", fontWeight: 600 }}>Pagar no momento da aula</span>
- </label>
+ <span style={{ fontSize: "13px", color: "var(--text-1)", fontWeight: 700 }}>Pagar via PIX</span>
+ </div>
+ <p style={{ fontSize: "11.5px", color: "var(--text-2)", lineHeight: 1.6 }}>
+ Chave PIX (CPF): <strong style={{ color: "var(--text-1)" }}>{PIX_KEY_CPF_FORMATTED}</strong><br />
+ Após pagar, envie o comprovante no WhatsApp <strong style={{ color: "var(--text-1)" }}>{WHATSAPP_PHONE_FORMATTED}</strong> e marque &quot;Já fiz o pagamento&quot; na sua aula agendada.
+ </p>
+ </div>
+ </div>
  )}
 
  {/* ações */}
