@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import {
   CalendarDots, Clock, MapPin, Users, CircleNotch,
-  CaretLeft, CaretRight, CalendarCheck, WaveTriangle, Wallet,
+  CaretLeft, CaretRight, CalendarCheck, WaveTriangle, Wallet, Copy, Check,
 } from "@phosphor-icons/react";
 import { useBusinessId } from "@/hooks/useBusinessId";
 import { useAdminAgenda } from "@/hooks/useAdminAgenda";
@@ -11,6 +11,31 @@ import { getLocation, LOCATIONS, type LocationId } from "@/constants/locations";
 import { formatTime } from "@/lib/utils";
 import type { Session } from "@/types/session";
 import type { Reservation } from "@/types/reservation";
+
+// Monta um texto simples com a agenda do dia, pronto pra colar no WhatsApp.
+function buildAgendaText(
+  dateLabel: string,
+  byLocation: Map<LocationId, Session[]>,
+  reservationsBySession: Record<string, Reservation[]>,
+): string {
+  const lines: string[] = [`Aulas — ${dateLabel}`, ""];
+
+  byLocation.forEach((locSessions, locId) => {
+    lines.push(`📍 ${getLocation(locId).name}`);
+    locSessions.forEach((s) => {
+      const alunos = (reservationsBySession[s.id] ?? []).filter((r) => r.status !== "cancelled");
+      lines.push(`${formatTime(s.startTime)}–${formatTime(s.endTime)} (${alunos.length}/${s.maxCapacity})`);
+      if (alunos.length === 0) {
+        lines.push("  sem alunos inscritos");
+      } else {
+        alunos.forEach((r, i) => lines.push(`  ${i + 1}. ${r.customerName || "Aluno"}`));
+      }
+    });
+    lines.push("");
+  });
+
+  return lines.join("\n").trim();
+}
 
 const DAY_NAMES = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
 const MONTH_NAMES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
@@ -22,6 +47,7 @@ export default function AgendaPage() {
   const { loading, error, sessions, reservationsBySession } = useAdminAgenda(businessId);
   const [selected, setSelected] = useState<Date>(() => new Date());
   const [locationFilter, setLocationFilter] = useState<LocationId | "todas">("todas");
+  const [copied, setCopied] = useState(false);
 
   const selectedStr = fmtDate(selected);
   const isToday = selectedStr === fmtDate(new Date());
@@ -61,6 +87,13 @@ export default function AgendaPage() {
   }
 
   const dateLabel = `${DAY_NAMES[selected.getDay()]}, ${pad(selected.getDate())} de ${MONTH_NAMES[selected.getMonth()]}. de ${selected.getFullYear()}`;
+
+  async function handleCopy() {
+    const text = buildAgendaText(dateLabel, byLocation, reservationsBySession);
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   return (
     <div className="admin-page" style={{ maxWidth: "860px", margin: "0 auto" }}>
@@ -126,9 +159,13 @@ export default function AgendaPage() {
 
       {/* ── Resumo ────────────────────────────────────────────────────────── */}
       {!loading && dayClasses.length > 0 && (
-        <div className="rise-2" style={{ display: "flex", gap: "10px", marginBottom: "18px", flexWrap: "wrap" }}>
+        <div className="rise-2" style={{ display: "flex", gap: "10px", marginBottom: "18px", flexWrap: "wrap", alignItems: "center" }}>
           <Pill icon={<CalendarDots size={13} />} text={`${dayClasses.length} aula${dayClasses.length !== 1 ? "s" : ""}`} />
           <Pill icon={<Users size={13} />} text={`${totalAlunos} aluno${totalAlunos !== 1 ? "s" : ""} inscrito${totalAlunos !== 1 ? "s" : ""}`} />
+          <button onClick={handleCopy} className="ag-action" style={{ marginLeft: "auto" }}>
+            {copied ? <Check size={14} /> : <Copy size={14} />}
+            {copied ? "Copiado!" : "Copiar agenda"}
+          </button>
         </div>
       )}
 
