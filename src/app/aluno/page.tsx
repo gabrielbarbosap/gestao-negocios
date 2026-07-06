@@ -3,14 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X, Camera, ArrowUpRight, Wallet } from "@phosphor-icons/react";
+import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X, Camera, ArrowUpRight, Wallet, WhatsappLogo } from "@phosphor-icons/react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useStudentReservations } from "@/hooks/useStudentReservations";
 import { cancelReservation, confirmPixPayment } from "@/lib/firebase/reservations";
 import { getLocation } from "@/constants/locations";
 import { formatTime } from "@/lib/utils";
-import { PIX_KEY_CPF_FORMATTED, WHATSAPP_PHONE_FORMATTED } from "@/constants/payment";
+import { PIX_KEY_CPF_FORMATTED, PIX_AMOUNT_FORMATTED, PIX_RECEIPT_WHATSAPP_LINK } from "@/constants/payment";
 import type { Reservation } from "@/types/reservation";
 
 // Cancelamento só é permitido até 24h antes do início da aula.
@@ -274,18 +274,29 @@ function ReservationCard({ r, past, onCancel, onConfirmPix }: {
       {pixPending && (
         <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid var(--border)" }}>
           <p style={{ fontSize: "11.5px", color: "var(--text-2)", lineHeight: 1.6, marginBottom: "10px" }}>
+            Valor: <strong style={{ color: "var(--text-1)" }}>{PIX_AMOUNT_FORMATTED}</strong><br />
             Chave PIX (CPF): <strong style={{ color: "var(--text-1)" }}>{PIX_KEY_CPF_FORMATTED}</strong><br />
-            Envie o comprovante no WhatsApp <strong style={{ color: "var(--text-1)" }}>{WHATSAPP_PHONE_FORMATTED}</strong> e depois confirme abaixo.
+            Envie o comprovante pelo WhatsApp e depois confirme abaixo.
           </p>
-          <button
-            onClick={handleConfirmPix}
-            disabled={confirmingPix}
-            className="btn-primary"
-            style={{ fontSize: "12.5px", padding: "7px 14px", height: "auto", display: "flex", alignItems: "center", gap: "6px" }}
-          >
-            {confirmingPix ? <CircleNotch size={12} className="ph-spin" /> : <Wallet size={13} />}
-            Já fiz o pagamento
-          </button>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <a
+              href={PIX_RECEIPT_WHATSAPP_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: "flex", alignItems: "center", gap: "6px", height: "34px", padding: "0 14px", borderRadius: "8px", background: "#25D366", color: "#fff", fontSize: "12.5px", fontWeight: 700, textDecoration: "none" }}
+            >
+              <WhatsappLogo size={15} weight="fill" /> Enviar comprovante
+            </a>
+            <button
+              onClick={handleConfirmPix}
+              disabled={confirmingPix}
+              className="btn-primary"
+              style={{ fontSize: "12.5px", padding: "0 14px", height: "34px", display: "flex", alignItems: "center", gap: "6px" }}
+            >
+              {confirmingPix ? <CircleNotch size={12} className="ph-spin" /> : <Wallet size={13} />}
+              Já fiz o pagamento
+            </button>
+          </div>
         </div>
       )}
 
