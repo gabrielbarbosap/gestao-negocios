@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Nunito, Inter } from "next/font/google";
+import { WhatsappFloatButton } from "@/components/whatsapp-float-button";
 import "./globals.css";
 
 // Display / títulos — estilo escola de surf, esportivo
@@ -48,7 +49,10 @@ export default function RootLayout({
       <head>
         <link rel="apple-touch-icon" href="/escola/logo.jpg" />
       </head>
-      <body className="min-h-full antialiased">{children}</body>
+      <body className="min-h-full antialiased">
+        {children}
+        <WhatsappFloatButton />
+      </body>
     </html>
   );
 }

@@ -17,3 +17,7 @@ export const PIX_RECEIPT_MESSAGE =
   `Olá! Segue o comprovante do pagamento via PIX (${PIX_AMOUNT_FORMATTED}) da minha aula de surf.`;
 
 export const PIX_RECEIPT_WHATSAPP_LINK = whatsappLink(PIX_RECEIPT_MESSAGE);
+
+// Botão flutuante de contato (landing + área do aluno).
+export const WHATSAPP_CONTACT_MESSAGE = "Olá! Tenho uma dúvida sobre as aulas de surf.";
+export const WHATSAPP_CONTACT_LINK = whatsappLink(WHATSAPP_CONTACT_MESSAGE);

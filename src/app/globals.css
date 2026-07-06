@@ -394,6 +394,32 @@ body {
 
 .student-sidebar-nav .nav-link { width: 100%; justify-content: flex-start; }
 
+/* ─── Botão flutuante do WhatsApp ───────────────────────────────────────── */
+
+.whatsapp-float {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1000;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25D366;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+  text-decoration: none;
+  transition: transform 0.15s;
+}
+.whatsapp-float:hover { transform: scale(1.06); }
+
+@media (max-width: 767px) {
+  /* área do aluno tem bottom nav fixo no mobile — sobe o botão pra não sobrepor */
+  .whatsapp-float--with-bottomnav { bottom: 84px; }
+}
+
 /* ─── Phosphor spin ─────────────────────────────────────────────────────── */
 
 @keyframes ph-spin { to { transform: rotate(360deg); } }
