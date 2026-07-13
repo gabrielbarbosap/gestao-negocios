@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { signUp, signInWithGoogle, auth, onAuthStateChanged } from "@/lib/firebase/auth";
+import { signUp, signInWithGoogle, logout, auth, onAuthStateChanged } from "@/lib/firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -120,7 +120,18 @@ function RegisterForm() {
     signInWithGoogle()
       .then(async (credential) => {
         const u = credential.user;
-        await createCustomerDoc(u.uid, u.displayName ?? u.email ?? "Aluno", u.email ?? "");
+        if (!u.email) {
+          // O Google não devolveu e-mail — normalmente é sinal de que esse
+          // e-mail já pertence a outra conta (o Firebase omite o e-mail
+          // nesse caso, em vez de expor o conflito). Não criamos cadastro
+          // com e-mail vazio: orientamos a usar a conta original.
+          await logout();
+          googleLoadingRef.current = false;
+          setError("Não conseguimos confirmar o e-mail dessa conta Google — você provavelmente já tem um cadastro com esse e-mail. Tente entrar com e-mail e senha.");
+          setGoogleLoading(false);
+          return;
+        }
+        await createCustomerDoc(u.uid, u.displayName ?? u.email, u.email);
         onPopupClose();
       })
       .catch((err: unknown) => {

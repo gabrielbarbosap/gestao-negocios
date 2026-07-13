@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { signIn, signInWithGoogle, auth, onAuthStateChanged } from "@/lib/firebase/auth";
+import { signIn, signInWithGoogle, logout, auth, onAuthStateChanged } from "@/lib/firebase/auth";
 // auth e onAuthStateChanged usados em LoginPage (fora do Suspense)
 import { isAdminUser } from "@/hooks/useAuth";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -77,7 +77,19 @@ function LoginForm() {
  window.addEventListener("focus", onPopupClose, { once: true });
 
  signInWithGoogle()
- .then(onPopupClose)
+ .then(async (credential) => {
+ if (!credential.user.email) {
+ // O Google não devolveu e-mail — normalmente é sinal de que esse
+ // e-mail já pertence a outra conta (o Firebase omite o e-mail
+ // nesse caso, em vez de expor o conflito).
+ window.removeEventListener("focus", onPopupClose);
+ await logout();
+ setError("Não conseguimos confirmar o e-mail dessa conta Google — você provavelmente já tem um cadastro com esse e-mail. Tente entrar com e-mail e senha.");
+ setGoogleLoading(false);
+ return;
+ }
+ onPopupClose();
+ })
  .catch((err: unknown) => {
  const code = (err as { code?: string })?.code ?? "";
  if (code === "auth/popup-blocked") {
