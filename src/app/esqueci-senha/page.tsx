@@ -73,7 +73,7 @@ export default function EsqueciSenhaPage() {
                   <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-2)", textTransform: "uppercase", letterSpacing: "0.07em" }}>
                     E-mail
                   </label>
-                  <input type="email" placeholder="seu@email.com" className="warm-input" {...register("email")} />
+                  <input type="email" required placeholder="seu@email.com" className="warm-input" {...register("email")} />
                   {errors.email && <p style={{ fontSize: "12px", color: "var(--red)" }}>{errors.email.message}</p>}
                 </div>
 

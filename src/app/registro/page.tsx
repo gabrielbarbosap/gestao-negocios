@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -9,6 +9,7 @@ import { z } from "zod";
 import { signUp, signInWithGoogle, auth, onAuthStateChanged } from "@/lib/firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
+import { PasswordInput } from "@/components/ui/password-input";
 
 const schema = z.object({
   name:     z.string().min(2, "Mínimo 2 caracteres"),
@@ -45,6 +46,11 @@ function RegisterForm() {
 
   const [error, setError]                 = useState("");
   const [googleLoading, setGoogleLoading] = useState(false);
+  // Trava síncrona contra clique duplo no botão do Google (o estado do
+  // React só reflete no próximo render). Não dá pra usar ref dentro do
+  // onSubmit do react-hook-form (eslint react-hooks/refs bloqueia), por
+  // isso ali a proteção é via `isSubmitting` do próprio form.
+  const googleLoadingRef = useRef(false);
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -81,6 +87,7 @@ function RegisterForm() {
   }
 
   async function onSubmit(data: FormData) {
+    if (isSubmitting) return;
     try {
       setError("");
       const credential = await signUp(data.email, data.password);
@@ -97,6 +104,8 @@ function RegisterForm() {
 
   // ── Google ──────────────────────────────────────────────────────────────
   function handleGoogle() {
+    if (googleLoadingRef.current) return;
+    googleLoadingRef.current = true;
     setError("");
     setGoogleLoading(true);
 
@@ -115,6 +124,7 @@ function RegisterForm() {
         onPopupClose();
       })
       .catch((err: unknown) => {
+        googleLoadingRef.current = false;
         const code = (err as { code?: string })?.code ?? "";
         if (code === "auth/popup-blocked") {
           window.removeEventListener("focus", onPopupClose);
@@ -180,7 +190,11 @@ function RegisterForm() {
                 <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-2)", textTransform: "uppercase", letterSpacing: "0.07em" }}>
                   {label}
                 </label>
-                <input type={type} placeholder={placeholder} className="warm-input" {...register(name)} />
+                {type === "password" ? (
+                  <PasswordInput required placeholder={placeholder} className="warm-input" {...register(name)} />
+                ) : (
+                  <input type={type} required placeholder={placeholder} className="warm-input" {...register(name)} />
+                )}
                 {errors[name] && <p style={{ fontSize: "12px", color: "var(--red)" }}>{errors[name]?.message}</p>}
               </div>
             ))}

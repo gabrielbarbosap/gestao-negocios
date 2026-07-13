@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X, Camera, ArrowUpRight, Wallet, WhatsappLogo, Trophy, CaretRight } from "@phosphor-icons/react";
@@ -252,13 +252,19 @@ function ReservationCard({ r, past, onCancel, onConfirmPix }: {
   const [cancelError, setCancelError] = useState("");
   const [confirmingPix, setConfirmingPix] = useState(false);
   const pixPending = r.payment === "pix" && r.status === "reserved";
+  // Trava síncrona contra clique/toque duplo — o estado do React só reflete
+  // no próximo render, então um segundo clique bem rápido pode passar pelo
+  // "disabled" antes dele atualizar. O ref bloqueia na hora, sem esperar.
+  const cancellingRef = useRef(false);
+  const confirmingPixRef = useRef(false);
 
   const dateLabel = new Date(r.date + "T00:00:00").toLocaleDateString("pt-BR", {
     weekday: "short", day: "2-digit", month: "short",
   });
 
   async function handleConfirmCancel() {
-    if (!onCancel) return;
+    if (!onCancel || cancellingRef.current) return;
+    cancellingRef.current = true;
     setCancelling(true);
     setCancelError("");
     try {
@@ -267,16 +273,19 @@ function ReservationCard({ r, past, onCancel, onConfirmPix }: {
     } catch (e) {
       setCancelError(e instanceof Error ? e.message : "Não foi possível cancelar.");
     } finally {
+      cancellingRef.current = false;
       setCancelling(false);
     }
   }
 
   async function handleConfirmPix() {
-    if (!onConfirmPix) return;
+    if (!onConfirmPix || confirmingPixRef.current) return;
+    confirmingPixRef.current = true;
     setConfirmingPix(true);
     try {
       await onConfirmPix(r);
     } finally {
+      confirmingPixRef.current = false;
       setConfirmingPix(false);
     }
   }

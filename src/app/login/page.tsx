@@ -9,6 +9,7 @@ import { z } from "zod";
 import { signIn, signInWithGoogle, auth, onAuthStateChanged } from "@/lib/firebase/auth";
 // auth e onAuthStateChanged usados em LoginPage (fora do Suspense)
 import { isAdminUser } from "@/hooks/useAuth";
+import { PasswordInput } from "@/components/ui/password-input";
 
 const schema = z.object({
  email: z.string().email("E-mail inválido"),
@@ -139,7 +140,7 @@ function LoginForm() {
  <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-2)", textTransform: "uppercase", letterSpacing: "0.07em" }}>
  E-mail
  </label>
- <input type="email" placeholder="seu@email.com" className="warm-input" {...register("email")} />
+ <input type="email" required placeholder="seu@email.com" className="warm-input" {...register("email")} />
  {errors.email && <p style={{ fontSize: "12px", color: "var(--red)" }}>{errors.email.message}</p>}
  </div>
 
@@ -152,7 +153,7 @@ function LoginForm() {
  Esqueci minha senha
  </Link>
  </div>
- <input type="password" placeholder="••••••••" className="warm-input" {...register("password")} />
+ <PasswordInput required placeholder="••••••••" className="warm-input" {...register("password")} />
  {errors.password && <p style={{ fontSize: "12px", color: "var(--red)" }}>{errors.password.message}</p>}
  </div>
 

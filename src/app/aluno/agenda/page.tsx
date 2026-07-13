@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -259,6 +259,7 @@ function BookingModal({ session, user, onClose, onConfirmed, onError }: {
  const loc = getLocation(session.location);
  const [credits, setCredits] = useState<number | null>(null);
  const [saving, setSaving] = useState(false);
+ const savingRef = useRef(false); // trava síncrona contra clique duplo
 
  useEffect(() => {
  let cancelled = false;
@@ -277,7 +278,8 @@ function BookingModal({ session, user, onClose, onConfirmed, onError }: {
  const canConfirm = credits !== null;
 
  async function confirm() {
- if (!canConfirm || saving) return;
+ if (!canConfirm || savingRef.current) return;
+ savingRef.current = true;
  setSaving(true);
  try {
  await createReservation(
@@ -289,6 +291,7 @@ function BookingModal({ session, user, onClose, onConfirmed, onError }: {
  } catch (e) {
  console.error("[reserve]", e);
  onError?.("Não foi possível reservar. O horário pode ter lotado.");
+ savingRef.current = false;
  setSaving(false);
  }
  }
