@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X, Camera, ArrowUpRight, Wallet, WhatsappLogo, Trophy, CaretRight } from "@phosphor-icons/react";
+import { useRouter } from "next/navigation";
+import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X, Camera, ArrowUpRight, Wallet, WhatsappLogo, Trophy, CaretRight, WarningCircle } from "@phosphor-icons/react";
 import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
+import { logout } from "@/lib/firebase/auth";
 import { useStudentReservations } from "@/hooks/useStudentReservations";
 import { cancelReservation, confirmPixPayment } from "@/lib/firebase/reservations";
 import { getLocation } from "@/constants/locations";
@@ -22,6 +24,7 @@ function canCancel(r: Reservation): boolean {
 }
 
 export default function StudentHomePage() {
+  const router = useRouter();
   const { user, reservations, loading, refresh } = useStudentReservations();
   const _now = new Date();
   const todayStr = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, "0")}-${String(_now.getDate()).padStart(2, "0")}`;
@@ -31,23 +34,48 @@ export default function StudentHomePage() {
   const [creditBanner, setCreditBanner] = useState(false);
   const [refundModalOpen, setRefundModalOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [duplicateAccount, setDuplicateAccount] = useState(false);
 
   useEffect(() => {
     if (!user) return;
     getDoc(doc(db, "businesses", businessId, "customers", user.uid))
-      .then((snap) => {
+      .then(async (snap) => {
         if (snap.exists()) {
           const d = snap.data();
           setProfileComplete(!!d.phone && !!d.birthDate);
           setParafinas(d.creditBalance ?? 0);
           setShowOnboarding(!d.hasSeenOnboarding);
-        } else {
-          setProfileComplete(false);
-          setParafinas(0);
+          return;
+        }
+
+        setProfileComplete(false);
+        setParafinas(0);
+
+        // Sem cadastro pra esse uid — pode ser um login com outro método
+        // (ex: Google) pro mesmo e-mail de uma conta já existente. Como
+        // permitimos e-mails duplicados no Firebase (pra não perder senha
+        // ao mesclar contas), checamos se já existe histórico com esse
+        // e-mail em outro uid antes de deixar o aluno seguir numa conta vazia.
+        if (!user.email) return;
+        try {
+          const res = await fetch("/api/auth/check-duplicate-account", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: user.email, uid: user.uid }),
+          });
+          const { duplicate } = await res.json();
+          if (duplicate) setDuplicateAccount(true);
+        } catch (e) {
+          console.error("[check-duplicate-account]", e);
         }
       })
       .catch(() => {});
   }, [user, businessId]);
+
+  async function handleSwitchAccount() {
+    await logout();
+    router.push("/login");
+  }
 
   async function handleCloseOnboarding() {
     setShowOnboarding(false);
@@ -111,6 +139,7 @@ export default function StudentHomePage() {
 
       {refundModalOpen && <RefundModal onClose={() => setRefundModalOpen(false)} />}
       {showOnboarding && <OnboardingModal onClose={handleCloseOnboarding} />}
+      {duplicateAccount && <DuplicateAccountModal onSwitchAccount={handleSwitchAccount} />}
 
       <header style={{ marginBottom: "22px", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
         <div>
@@ -498,6 +527,52 @@ function OnboardingModal({ onClose }: { onClose: () => void }) {
         >
           {isLast ? "Entendi!" : "Próximo"}
           {!isLast && <CaretRight size={15} />}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Modal: detectou outra conta com o mesmo e-mail ───────────────────────
+// Acontece quando o aluno entra com um método diferente (ex: Google) do
+// que usou da primeira vez — cada método vira uma conta separada, então
+// essa aqui está vazia. Não deixa fechar clicando fora: precisa trocar
+// de conta pra não achar que perdeu o histórico.
+function DuplicateAccountModal({ onSwitchAccount }: { onSwitchAccount: () => Promise<void> }) {
+  const [switching, setSwitching] = useState(false);
+
+  async function handleClick() {
+    setSwitching(true);
+    await onSwitchAccount();
+  }
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 70, background: "rgba(26,61,92,0.6)",
+      backdropFilter: "blur(3px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px",
+    }}>
+      <div className="card" style={{ width: "100%", maxWidth: "400px", padding: "24px", textAlign: "center" }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "14px" }}>
+          <WarningCircle size={40} weight="fill" style={{ color: "var(--gold)" }} />
+        </div>
+
+        <h2 className="font-display" style={{ fontSize: "1.3rem", color: "var(--text-1)", marginBottom: "10px" }}>
+          Essa não é sua conta de sempre
+        </h2>
+        <p style={{ fontSize: "13.5px", color: "var(--text-2)", lineHeight: 1.6, marginBottom: "20px" }}>
+          Você já tem um cadastro com esse e-mail feito de outra forma (e-mail e senha, ou Google) —
+          essa conta que você acabou de entrar está vazia. Pra ver suas parafinas, aulas e histórico,
+          saia e entre novamente usando o mesmo método que usou da primeira vez.
+        </p>
+
+        <button
+          onClick={handleClick}
+          disabled={switching}
+          className="btn-primary"
+          style={{ width: "100%", height: "44px", fontSize: "14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+        >
+          {switching ? <CircleNotch size={16} className="ph-spin" /> : null}
+          {switching ? "Saindo..." : "Sair e entrar com a conta certa"}
         </button>
       </div>
     </div>
