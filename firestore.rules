@@ -11,8 +11,8 @@ service cloud.firestore {
     // uid aqui também (e em ADMIN_EMAILS / useAuth.ts no client).
     function isBizAdmin() {
       return request.auth != null && (
-        request.auth.uid == "1wLgfQXpYAOZMmXDZzZicurIFFT2"
-        || request.auth.uid == "q9D5H72UFrZZDMcoS2ENXvAvrzL2"
+        request.auth.uid == "GGWmzusYg0eoK0stfCszUNEGXKs2" // gabriel@sistemap.com.br
+        || request.auth.uid == "q9D5H72UFrZZDMcoS2ENXvAvrzL2" // ivansurf2011@hotmail.com
       );
     }
 
