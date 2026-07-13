@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       }
 
       case "cancellation": {
-        const { toEmail, toName, date, startTime, endTime, location, creditRefunded } = body;
+        const { toEmail, toName, date, startTime, endTime, location, creditRefunded, needsManualRefund } = body;
         if (!toEmail || !date || !startTime || !endTime || !location) {
           return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
           endTime: formatTime(endTime),
           locationName: getLocation(location as LocationId).name,
           creditRefunded: !!creditRefunded,
+          needsManualRefund: !!needsManualRefund,
         });
         break;
       }

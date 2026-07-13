@@ -164,13 +164,18 @@ async function notifyEmail(payload: Record<string, unknown>): Promise<void> {
   }
 }
 
+export interface CancelReservationResult {
+  refundsCredit: boolean;    // devolveu 1 parafina (só quando pago com crédito)
+  needsManualRefund: boolean; // pago via pix e já confirmado — reembolso combinado com o Ivan
+}
+
 // ─── Aluno: cancela a própria reserva ────────────────────────────────────
 // Só é permitido até 24h antes do início da aula. Num único batch: marca a
-// reserva como cancelada, libera a vaga na sessão e devolve 1 crédito ao
-// saldo — tanto para quem pagou com crédito quanto para quem pagou via pix
-// e já tinha o pagamento confirmado (o crédito devolvido vira parafina para
-// usar em outra aula).
-export async function cancelReservation(reservation: Reservation, customerId: string): Promise<void> {
+// reserva como cancelada e libera a vaga na sessão.
+// Devolução de crédito só para quem pagou com parafina (crédito): pix não
+// gera crédito automaticamente — se já tinha pago e confirmado, o reembolso
+// do valor é combinado direto com o Ivan pelo WhatsApp (`needsManualRefund`).
+export async function cancelReservation(reservation: Reservation, customerId: string): Promise<CancelReservationResult> {
   const classStart = new Date(`${reservation.date}T${reservation.startTime}:00`);
   const hoursUntilClass = (classStart.getTime() - Date.now()) / (1000 * 60 * 60);
   if (hoursUntilClass < 24) {
@@ -189,8 +194,8 @@ export async function cancelReservation(reservation: Reservation, customerId: st
     currentCapacity: increment(-1), updatedAt: serverTimestamp(),
   });
 
-  const refundsCredit = reservation.creditsUsed > 0
-    || (reservation.payment === "pix" && reservation.status === "confirmed");
+  const refundsCredit = reservation.creditsUsed > 0;
+  const needsManualRefund = reservation.payment === "pix" && reservation.status === "confirmed";
 
   if (refundsCredit) {
     batch.update(doc(db, `${base}/customers`, customerId), {
@@ -210,6 +215,9 @@ export async function cancelReservation(reservation: Reservation, customerId: st
       endTime: reservation.endTime,
       location: reservation.location,
       creditRefunded: refundsCredit,
+      needsManualRefund,
     });
   }
+
+  return { refundsCredit, needsManualRefund };
 }

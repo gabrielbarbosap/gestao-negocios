@@ -21,3 +21,9 @@ export const PIX_RECEIPT_WHATSAPP_LINK = whatsappLink(PIX_RECEIPT_MESSAGE);
 // Botão flutuante de contato (landing + área do aluno).
 export const WHATSAPP_CONTACT_MESSAGE = "Olá! Tenho uma dúvida sobre as aulas de surf.";
 export const WHATSAPP_CONTACT_LINK = whatsappLink(WHATSAPP_CONTACT_MESSAGE);
+
+// Aula paga via PIX e cancelada: não gera parafina automaticamente, o
+// reembolso do valor é combinado direto com o Ivan pelo WhatsApp.
+export const PIX_REFUND_MESSAGE =
+  "Olá! Cancelei uma aula que paguei via PIX e gostaria de solicitar o reembolso do valor.";
+export const PIX_REFUND_WHATSAPP_LINK = whatsappLink(PIX_REFUND_MESSAGE);

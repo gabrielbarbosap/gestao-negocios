@@ -10,7 +10,7 @@ import { useStudentReservations } from "@/hooks/useStudentReservations";
 import { cancelReservation, confirmPixPayment } from "@/lib/firebase/reservations";
 import { getLocation } from "@/constants/locations";
 import { formatTime } from "@/lib/utils";
-import { PIX_KEY_CPF_FORMATTED, PIX_AMOUNT_FORMATTED, PIX_RECEIPT_WHATSAPP_LINK } from "@/constants/payment";
+import { PIX_KEY_CPF_FORMATTED, PIX_AMOUNT_FORMATTED, PIX_RECEIPT_WHATSAPP_LINK, PIX_REFUND_WHATSAPP_LINK, WHATSAPP_PHONE_FORMATTED } from "@/constants/payment";
 import type { Reservation } from "@/types/reservation";
 
 // Cancelamento só é permitido até 24h antes do início da aula.
@@ -28,6 +28,8 @@ export default function StudentHomePage() {
   const businessId = process.env.NEXT_PUBLIC_BUSINESS_ID!;
   const [profileComplete, setProfileComplete] = useState(true);
   const [parafinas, setParafinas] = useState<number | null>(null);
+  const [creditBanner, setCreditBanner] = useState(false);
+  const [refundModalOpen, setRefundModalOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -55,8 +57,14 @@ export default function StudentHomePage() {
 
   async function handleCancel(r: Reservation) {
     if (!user) return;
-    await cancelReservation(r, user.uid);
+    const { refundsCredit, needsManualRefund } = await cancelReservation(r, user.uid);
     refresh();
+    if (refundsCredit) {
+      setCreditBanner(true);
+      setTimeout(() => setCreditBanner(false), 6000);
+    } else if (needsManualRefund) {
+      setRefundModalOpen(true);
+    }
   }
 
   async function handleConfirmPix(r: Reservation) {
@@ -66,6 +74,28 @@ export default function StudentHomePage() {
 
   return (
     <div className="rise" style={{ maxWidth: "560px" }}>
+      {creditBanner && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: "10px", padding: "12px 16px",
+          borderRadius: "12px", marginBottom: "16px",
+          background: "rgba(56,193,114,0.12)", border: "1px solid rgba(56,193,114,0.3)",
+        }}>
+          <Image src="/parafina.png" alt="parafina" width={22} height={22} style={{ objectFit: "contain", flexShrink: 0 }} />
+          <p style={{ fontSize: "13px", color: "#1a7a4a", fontWeight: 700, flex: 1 }}>
+            Aula cancelada — sua parafina foi devolvida!
+          </p>
+          <button
+            onClick={() => setCreditBanner(false)}
+            aria-label="Fechar"
+            style={{ background: "none", border: "none", color: "#1a7a4a", cursor: "pointer", padding: "2px", flexShrink: 0 }}
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
+      {refundModalOpen && <RefundModal onClose={() => setRefundModalOpen(false)} />}
+
       <header style={{ marginBottom: "22px", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
         <div>
           <h1 className="font-display" style={{ fontSize: "1.9rem", color: "var(--text-1)" }}>Olá, Surfista!</h1>
@@ -310,7 +340,9 @@ function ReservationCard({ r, past, onCancel, onConfirmPix }: {
         <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid var(--border)" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
             <p style={{ fontSize: "12.5px", color: "var(--text-2)" }}>
-              Cancelar esta aula?{(r.creditsUsed > 0 || (r.payment === "pix" && r.status === "confirmed")) ? " Sua parafina será devolvida." : ""}
+              Cancelar esta aula?
+              {r.creditsUsed > 0 && " Sua parafina será devolvida."}
+              {r.payment === "pix" && r.status === "confirmed" && " O reembolso do PIX é combinado direto com o Ivan pelo WhatsApp."}
             </p>
             <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
               <button onClick={() => setConfirming(false)} disabled={cancelling} className="btn-outline" style={{ fontSize: "12px", padding: "5px 12px", height: "auto" }}>
@@ -331,6 +363,46 @@ function ReservationCard({ r, past, onCancel, onConfirmPix }: {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── Modal: aula paga via PIX cancelada — reembolso combinado com o Ivan ──
+function RefundModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, zIndex: 60, background: "rgba(26,61,92,0.5)",
+        backdropFilter: "blur(3px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="card"
+        style={{ width: "100%", maxWidth: "380px", padding: "22px" }}
+      >
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "14px" }}>
+          <h2 className="font-display" style={{ fontSize: "1.3rem", color: "var(--text-1)" }}>Solicite seu reembolso</h2>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-3)", cursor: "pointer", padding: "2px" }} aria-label="Fechar">
+            <X size={20} />
+          </button>
+        </div>
+
+        <p style={{ fontSize: "13.5px", color: "var(--text-2)", lineHeight: 1.6, marginBottom: "18px" }}>
+          Sua aula foi cancelada. Como o pagamento foi feito via PIX (não com parafina), não geramos crédito automático —
+          fale com o Ivan pelo WhatsApp <strong style={{ color: "var(--text-1)" }}>{WHATSAPP_PHONE_FORMATTED}</strong> pra combinar a devolução do valor pago.
+        </p>
+
+        <a
+          href={PIX_REFUND_WHATSAPP_LINK}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", height: "44px", borderRadius: "8px", background: "#25D366", color: "#fff", fontSize: "14px", fontWeight: 700, textDecoration: "none" }}
+        >
+          <WhatsappLogo size={17} weight="fill" /> Falar com o Ivan no WhatsApp
+        </a>
+      </div>
     </div>
   );
 }

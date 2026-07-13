@@ -8,6 +8,7 @@ function getResend() {
 
 export const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "noreply@gestaosurf.com.br";
 const BRAND_NAME = "Ivan Silva Surf School";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ivansurf.partiu.life";
 
 function wrapEmailHtml(title: string, bodyHtml: string): string {
   return `
@@ -15,7 +16,7 @@ function wrapEmailHtml(title: string, bodyHtml: string): string {
       <h1 style="color: #0ea5e9;">${title}</h1>
       ${bodyHtml}
       <p style="color: #999; font-size: 12px; margin-top: 32px;">
-        ${BRAND_NAME} — enviado automaticamente pelo sistema de gestão.
+        ${BRAND_NAME} — bora pegar onda! 🌊
       </p>
     </div>
   `;
@@ -28,15 +29,21 @@ export interface WelcomeEmailData {
 }
 
 export async function sendWelcomeEmail(data: WelcomeEmailData) {
-  const html = wrapEmailHtml(`Bem-vindo(a), ${data.toName}! 🏄`, `
-    <p>Sua conta na ${BRAND_NAME} foi criada com sucesso.</p>
-    <p>Agora você já pode agendar suas aulas de surf em Maracaipe ou na Praia do Borete.</p>
+  const html = wrapEmailHtml(`E aí, ${data.toName}! Bem-vindo(a) 🏄`, `
+    <p>Sua conta na ${BRAND_NAME} tá pronta! Agora é só escolher o horário e marcar sua aula em Maracaipe ou na Praia do Borete.</p>
+    <p>Pra agendar você vai usar 1 <strong>parafina</strong> (nosso crédito de aula) — dá pra comprar com cartão de crédito, ou já reservar o horário e pagar essa aula via PIX.</p>
+    <p style="margin-top: 20px;">
+      <a href="${APP_URL}/aluno/agenda" style="display: inline-block; background: #0ea5e9; color: #fff; padding: 12px 22px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+        Ver horários disponíveis
+      </a>
+    </p>
+    <p>Qualquer dúvida é só chamar a gente no WhatsApp. Te esperamos na água!</p>
   `);
 
   const { error } = await getResend().emails.send({
     from: FROM_EMAIL,
     to: data.toEmail,
-    subject: `Bem-vindo(a) à ${BRAND_NAME}!`,
+    subject: `Bem-vindo(a) à ${BRAND_NAME}! 🏄`,
     html,
   });
 
@@ -70,17 +77,24 @@ export async function sendReservationEmail(data: ReservationEmailData) {
 
   const cancellationNotice = `
     <p style="color: #666; font-size: 13px;">
-      Lembrete: cancelamentos só podem ser feitos até <strong>24h antes</strong> do início da aula.
+      Uma coisa importante: se precisar desmarcar, dá pra cancelar até <strong>24h antes</strong> do horário da aula — depois disso não rola mais.
     </p>
   `;
 
-  const html = wrapEmailHtml(isPending ? "Reserva recebida!" : "Aula confirmada! 🏄", `
-    <p>Olá, ${data.toName}! Sua aula foi ${isPending ? "reservada" : "confirmada"}:</p>
+  const html = wrapEmailHtml(isPending ? "Vaga garantida — falta o pagamento! 🤙" : "Aula confirmada! 🏄", `
+    <p>${isPending ? `Boa, ${data.toName}! Já reservamos seu horário` : `Prontinho, ${data.toName}! Sua aula tá confirmada`}:</p>
     ${details}
     ${isPending
-      ? `<p><strong>Falta pagar!</strong> Pague R$ 100,00 via PIX (chave CPF 704.595.054-32), envie o comprovante pelo WhatsApp (81) 98661-0065 e marque "Já fiz o pagamento" na sua aula — só assim ela fica confirmada. O horário já está reservado pra você.</p>`
+      ? `
+        <p>Sua vaga já está garantida, mas ela só vira confirmação de verdade depois do pagamento. É rapidinho:</p>
+        <ol style="padding-left: 20px; line-height: 1.8;">
+          <li>Faça um PIX de <strong>R$ 100,00</strong> pra chave CPF <strong>704.595.054-32</strong></li>
+          <li>Manda o comprovante no WhatsApp do Ivan: <strong>(81) 98661-0065</strong></li>
+          <li>Marca "Já fiz o pagamento" na sua aula, aqui no site</li>
+        </ol>
+      `
       : `
-        <p>${data.payment === "credit" ? "Foi usada 1 parafina do seu saldo." : "Recebemos a confirmação do seu pagamento via PIX."} Nos vemos na praia!</p>
+        <p>${data.payment === "credit" ? "Já descontamos 1 parafina do seu saldo." : "Recebemos a confirmação do seu pagamento via PIX."} Prepara a prancha — te vemos na água! 🌊</p>
         ${cancellationNotice}
       `
     }
@@ -89,7 +103,7 @@ export async function sendReservationEmail(data: ReservationEmailData) {
   const { error } = await getResend().emails.send({
     from: FROM_EMAIL,
     to: data.toEmail,
-    subject: isPending ? "Reserva recebida — falta pagar" : "Aula confirmada!",
+    subject: isPending ? "Vaga garantida — falta o pagamento" : "Aula confirmada! 🏄",
     html,
   });
 
@@ -105,6 +119,7 @@ export interface CancellationEmailData {
   endTime: string;
   locationName: string;
   creditRefunded: boolean;
+  needsManualRefund: boolean;
 }
 
 export async function sendCancellationEmail(data: CancellationEmailData) {
@@ -116,10 +131,17 @@ export async function sendCancellationEmail(data: CancellationEmailData) {
     </div>
   `;
 
+  const refundNotice = data.creditRefunded
+    ? `<p>Fica tranquilo(a): sua parafina já voltou pro seu saldo e tá pronta pra usar em outra aula quando quiser.</p>`
+    : data.needsManualRefund
+      ? `<p>Como essa aula foi paga via PIX, o reembolso não cai automático — chama o Ivan no WhatsApp <strong>(81) 98661-0065</strong> pra combinar a devolução do valor.</p>`
+      : "";
+
   const html = wrapEmailHtml("Aula cancelada", `
-    <p>Olá, ${data.toName}. Sua aula foi cancelada:</p>
+    <p>Oi, ${data.toName}. Confirmando que sua aula foi cancelada:</p>
     ${details}
-    ${data.creditRefunded ? `<p>Sua parafina foi devolvida e já está disponível pra usar em outra aula.</p>` : ""}
+    ${refundNotice}
+    <p>Quando quiser, é só marcar outro horário pela sua conta. Até a próxima!</p>
   `);
 
   const { error } = await getResend().emails.send({
