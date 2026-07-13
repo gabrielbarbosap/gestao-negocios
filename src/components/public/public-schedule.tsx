@@ -324,7 +324,7 @@ function BookingModal({ session, user, onClose, onConfirmed }: {
     if (!canConfirm || saving) return;
     setSaving(true);
     try {
-      await createReservation(session, { id: user.uid, name: user.displayName || user.email || "Aluno" }, { payWithPix: !hasCredits });
+      await createReservation(session, { id: user.uid, name: user.displayName || user.email || "Aluno", email: user.email || "" }, { payWithPix: !hasCredits });
       onConfirmed();
     } catch (e) {
       console.error("[reserve]", e);

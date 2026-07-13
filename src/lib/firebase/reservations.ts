@@ -39,7 +39,7 @@ export async function fetchMyReservations(customerId: string): Promise<Reservati
 // (ver `confirmPixPayment`) — só então a aula fica "confirmed".
 export async function createReservation(
   session: Session,
-  customer: { id: string; name: string },
+  customer: { id: string; name: string; email: string },
   opts: { payWithPix: boolean },
 ): Promise<void> {
   const base = `businesses/${session.businessId}`;
@@ -55,6 +55,7 @@ export async function createReservation(
     location: session.location,
     customerId: customer.id,
     customerName: customer.name,
+    customerEmail: customer.email,
     status: opts.payWithPix ? "reserved" : "confirmed",
     payment: opts.payWithPix ? "pix" : "credit",
     creditsUsed: opts.payWithPix ? 0 : 1,
@@ -73,17 +74,80 @@ export async function createReservation(
   }
 
   await batch.commit();
+
+  await notifyEmail({
+    type: "reservation",
+    toEmail: customer.email,
+    toName: customer.name,
+    date: session.date,
+    startTime: session.startTime,
+    endTime: session.endTime,
+    location: session.location,
+    payment: opts.payWithPix ? "pix" : "credit",
+  });
+
+  // Pix ainda não foi pago — só notifica o admin (Telegram) quando o aluno
+  // confirmar (ver `confirmPixPayment`). Crédito já é pagamento efetivado.
+  if (!opts.payWithPix) {
+    await notifyAdminTelegram({
+      customerName: customer.name,
+      date: session.date,
+      startTime: session.startTime,
+      endTime: session.endTime,
+      location: session.location,
+      payment: "credit",
+    });
+  }
 }
 
 // ─── Aluno: reporta que já pagou o PIX da reserva ─────────────────────────
 // Só o próprio aluno reporta; vale apenas para reservas em pix ainda não
-// confirmadas. A partir daqui a aula aparece como "confirmed".
+// confirmadas. A partir daqui a aula aparece como "confirmed" e o admin é
+// notificado (antes disso ele não sabe da reserva).
 export async function confirmPixPayment(reservation: Reservation): Promise<void> {
   if (reservation.payment !== "pix" || reservation.status !== "reserved") return;
   await updateDoc(doc(db, `businesses/${reservation.businessId}/reservations`, reservation.id), {
     status: "confirmed",
     updatedAt: serverTimestamp(),
   });
+
+  await notifyAdminTelegram({
+    customerName: reservation.customerName,
+    date: reservation.date,
+    startTime: reservation.startTime,
+    endTime: reservation.endTime,
+    location: reservation.location,
+    payment: "pix",
+  });
+}
+
+// ─── Notifica o admin (Telegram) sobre uma reserva paga/confirmada ────────
+async function notifyAdminTelegram(payload: {
+  customerName: string; date: string; startTime: string; endTime: string;
+  location: string; payment: "credit" | "pix";
+}): Promise<void> {
+  try {
+    await fetch("/api/notify/reservation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch (e) {
+    console.error("[notify/reservation]", e);
+  }
+}
+
+// ─── Notifica o aluno por e-mail (Resend) sobre a própria reserva ─────────
+async function notifyEmail(payload: Record<string, unknown>): Promise<void> {
+  try {
+    await fetch("/api/email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch (e) {
+    console.error("[email]", e);
+  }
 }
 
 // ─── Aluno: cancela a própria reserva ────────────────────────────────────
@@ -121,4 +185,17 @@ export async function cancelReservation(reservation: Reservation, customerId: st
   }
 
   await batch.commit();
+
+  if (reservation.customerEmail) {
+    await notifyEmail({
+      type: "cancellation",
+      toEmail: reservation.customerEmail,
+      toName: reservation.customerName,
+      date: reservation.date,
+      startTime: reservation.startTime,
+      endTime: reservation.endTime,
+      location: reservation.location,
+      creditRefunded: refundsCredit,
+    });
+  }
 }

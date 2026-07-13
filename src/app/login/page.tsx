@@ -144,9 +144,14 @@ function LoginForm() {
  </div>
 
  <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+ <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
  <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-2)", textTransform: "uppercase", letterSpacing: "0.07em" }}>
  Senha
  </label>
+ <Link href="/esqueci-senha" style={{ fontSize: "11.5px", color: "var(--ocean)", fontWeight: 600 }}>
+ Esqueci minha senha
+ </Link>
+ </div>
  <input type="password" placeholder="••••••••" className="warm-input" {...register("password")} />
  {errors.password && <p style={{ fontSize: "12px", color: "var(--red)" }}>{errors.password.message}</p>}
  </div>

@@ -25,6 +25,7 @@ export interface Reservation {
   location: LocationId;
   customerId: string;
   customerName: string;
+  customerEmail?: string; // ausente em reservas criadas antes desse campo existir
   status: ReservationStatus;
   payment: PaymentMode;
   creditsUsed: number;

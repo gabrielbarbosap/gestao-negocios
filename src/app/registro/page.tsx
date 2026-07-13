@@ -66,6 +66,18 @@ function RegisterForm() {
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     }, { merge: true });
+
+    if (email) {
+      try {
+        await fetch("/api/email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "welcome", toEmail: email, toName: name }),
+        });
+      } catch (e) {
+        console.error("[email]", e);
+      }
+    }
   }
 
   async function onSubmit(data: FormData) {

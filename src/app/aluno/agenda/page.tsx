@@ -282,7 +282,7 @@ function BookingModal({ session, user, onClose, onConfirmed, onError }: {
  try {
  await createReservation(
  session,
- { id: user.uid, name: user.displayName || user.email || "Aluno" },
+ { id: user.uid, name: user.displayName || user.email || "Aluno", email: user.email || "" },
  { payWithPix: !hasCredits },
  );
  onConfirmed();
