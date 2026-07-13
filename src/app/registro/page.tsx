@@ -130,6 +130,10 @@ function RegisterForm() {
           window.removeEventListener("focus", onPopupClose);
           setError("Popup bloqueado. Permita popups para este site.");
           setGoogleLoading(false);
+        } else if (code === "auth/account-exists-with-different-credential") {
+          window.removeEventListener("focus", onPopupClose);
+          setError("Esse e-mail já tem uma conta cadastrada com senha. Entre com e-mail e senha em vez de criar uma conta nova.");
+          setGoogleLoading(false);
         }
       });
   }

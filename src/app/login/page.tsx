@@ -84,6 +84,10 @@ function LoginForm() {
  window.removeEventListener("focus", onPopupClose);
  setError("Popup bloqueado. Permita popups para este site.");
  setGoogleLoading(false);
+ } else if (code === "auth/account-exists-with-different-credential") {
+ window.removeEventListener("focus", onPopupClose);
+ setError("Esse e-mail já tem uma conta cadastrada com senha. Entre com e-mail e senha, ou use \"Esqueci minha senha\" se precisar redefinir.");
+ setGoogleLoading(false);
  }
  // Outros erros (COOP, popup-closed-by-user): o focus handler faz o reload.
  });
