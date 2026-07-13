@@ -31,7 +31,7 @@ export interface WelcomeEmailData {
 export async function sendWelcomeEmail(data: WelcomeEmailData) {
   const html = wrapEmailHtml(`E aí, ${data.toName}! Bem-vindo(a) 🏄`, `
     <p>Sua conta na ${BRAND_NAME} tá pronta! Agora é só escolher o horário e marcar sua aula em Maracaipe ou na Praia do Borete.</p>
-    <p>Pra agendar você vai usar 1 <strong>parafina</strong> (nosso crédito de aula) — dá pra comprar com cartão de crédito, ou já reservar o horário e pagar essa aula via PIX.</p>
+    <p>Pra agendar você vai usar 1 <strong>parafina</strong> (nosso crédito de aula) — dá pra comprar créditos com cartão de crédito, ou já reservar o horário e pagar essa aula via PIX.</p>
     <p style="margin-top: 20px;">
       <a href="${APP_URL}/aluno/agenda" style="display: inline-block; background: #0ea5e9; color: #fff; padding: 12px 22px; border-radius: 8px; text-decoration: none; font-weight: bold;">
         Ver horários disponíveis
