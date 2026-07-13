@@ -119,6 +119,20 @@ export async function confirmPixPayment(reservation: Reservation): Promise<void>
     location: reservation.location,
     payment: "pix",
   });
+
+  if (reservation.customerEmail) {
+    await notifyEmail({
+      type: "reservation",
+      toEmail: reservation.customerEmail,
+      toName: reservation.customerName,
+      date: reservation.date,
+      startTime: reservation.startTime,
+      endTime: reservation.endTime,
+      location: reservation.location,
+      payment: "pix",
+      pixConfirmed: true,
+    });
+  }
 }
 
 // ─── Notifica o admin (Telegram) sobre uma reserva paga/confirmada ────────

@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       }
 
       case "reservation": {
-        const { toEmail, toName, date, startTime, endTime, location, payment } = body;
+        const { toEmail, toName, date, startTime, endTime, location, payment, pixConfirmed } = body;
         if (!toEmail || !date || !startTime || !endTime || !location) {
           return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
           endTime: formatTime(endTime),
           locationName: getLocation(location as LocationId).name,
           payment: payment === "pix" ? "pix" : "credit",
+          pixConfirmed: !!pixConfirmed,
         });
         break;
       }

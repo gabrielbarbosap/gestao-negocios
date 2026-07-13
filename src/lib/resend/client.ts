@@ -43,7 +43,9 @@ export async function sendWelcomeEmail(data: WelcomeEmailData) {
   if (error) throw new Error(error.message);
 }
 
-// ─── Reserva criada (crédito já confirmada, pix aguardando pagamento) ──────
+// ─── Reserva criada / confirmada ────────────────────────────────────────────
+// payment "credit" já nasce confirmada; "pix" nasce pendente e só vira
+// confirmada quando `pixConfirmed = true` (aluno clicou "Já fiz o pagamento").
 export interface ReservationEmailData {
   toEmail: string;
   toName: string;
@@ -52,10 +54,11 @@ export interface ReservationEmailData {
   endTime: string;
   locationName: string;
   payment: "credit" | "pix";
+  pixConfirmed?: boolean;
 }
 
 export async function sendReservationEmail(data: ReservationEmailData) {
-  const isPix = data.payment === "pix";
+  const isPending = data.payment === "pix" && !data.pixConfirmed;
 
   const details = `
     <div style="background: #f0f9ff; padding: 16px; border-radius: 8px; margin: 16px 0;">
@@ -65,19 +68,28 @@ export async function sendReservationEmail(data: ReservationEmailData) {
     </div>
   `;
 
-  const html = wrapEmailHtml(isPix ? "Reserva recebida!" : "Aula confirmada! 🏄", `
-    <p>Olá, ${data.toName}! Sua aula foi ${isPix ? "reservada" : "confirmada"}:</p>
+  const cancellationNotice = `
+    <p style="color: #666; font-size: 13px;">
+      Lembrete: cancelamentos só podem ser feitos até <strong>24h antes</strong> do início da aula.
+    </p>
+  `;
+
+  const html = wrapEmailHtml(isPending ? "Reserva recebida!" : "Aula confirmada! 🏄", `
+    <p>Olá, ${data.toName}! Sua aula foi ${isPending ? "reservada" : "confirmada"}:</p>
     ${details}
-    ${isPix
+    ${isPending
       ? `<p><strong>Falta pagar!</strong> Pague R$ 100,00 via PIX (chave CPF 704.595.054-32), envie o comprovante pelo WhatsApp (81) 98661-0065 e marque "Já fiz o pagamento" na sua aula — só assim ela fica confirmada. O horário já está reservado pra você.</p>`
-      : `<p>Foi usada 1 parafina do seu saldo. Nos vemos na praia!</p>`
+      : `
+        <p>${data.payment === "credit" ? "Foi usada 1 parafina do seu saldo." : "Recebemos a confirmação do seu pagamento via PIX."} Nos vemos na praia!</p>
+        ${cancellationNotice}
+      `
     }
   `);
 
   const { error } = await getResend().emails.send({
     from: FROM_EMAIL,
     to: data.toEmail,
-    subject: isPix ? "Reserva recebida — falta pagar" : "Aula confirmada!",
+    subject: isPending ? "Reserva recebida — falta pagar" : "Aula confirmada!",
     html,
   });
 
