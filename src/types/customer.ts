@@ -17,6 +17,7 @@ export interface Customer {
   xp: number;
   level: CustomerLevel;
   achievements: string[];
+  hasSeenOnboarding?: boolean;
   notes?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;

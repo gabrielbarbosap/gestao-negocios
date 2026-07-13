@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { resetPassword } from "@/lib/firebase/auth";
 
 const schema = z.object({
   email: z.string().email("E-mail inválido"),
@@ -21,13 +20,17 @@ export default function EsqueciSenhaPage() {
   });
 
   async function onSubmit(data: FormData) {
+    setError("");
     try {
-      setError("");
-      await resetPassword(data.email);
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: data.email }),
+      });
+      if (!res.ok) throw new Error("failed");
       setSent(true);
     } catch {
-      // Não revela se o e-mail existe ou não, por segurança.
-      setSent(true);
+      setError("Não foi possível enviar agora. Tente novamente em instantes.");
     }
   }
 

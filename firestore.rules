@@ -79,6 +79,11 @@ service cloud.firestore {
             && request.resource.data.diff(resource.data).affectedKeys()
                  .hasOnly(['achievements', 'xp', 'level', 'updatedAt'])
           )
+          || (
+            request.auth.uid == customerId
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['hasSeenOnboarding', 'updatedAt'])
+          )
         );
       }
 

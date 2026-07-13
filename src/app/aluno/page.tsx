@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X, Camera, ArrowUpRight, Wallet, WhatsappLogo } from "@phosphor-icons/react";
-import { doc, getDoc } from "firebase/firestore";
+import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X, Camera, ArrowUpRight, Wallet, WhatsappLogo, Trophy, CaretRight } from "@phosphor-icons/react";
+import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useStudentReservations } from "@/hooks/useStudentReservations";
 import { cancelReservation, confirmPixPayment } from "@/lib/firebase/reservations";
@@ -30,6 +30,7 @@ export default function StudentHomePage() {
   const [parafinas, setParafinas] = useState<number | null>(null);
   const [creditBanner, setCreditBanner] = useState(false);
   const [refundModalOpen, setRefundModalOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -39,6 +40,7 @@ export default function StudentHomePage() {
           const d = snap.data();
           setProfileComplete(!!d.phone && !!d.birthDate);
           setParafinas(d.creditBalance ?? 0);
+          setShowOnboarding(!d.hasSeenOnboarding);
         } else {
           setProfileComplete(false);
           setParafinas(0);
@@ -46,6 +48,19 @@ export default function StudentHomePage() {
       })
       .catch(() => {});
   }, [user, businessId]);
+
+  async function handleCloseOnboarding() {
+    setShowOnboarding(false);
+    if (!user) return;
+    try {
+      await updateDoc(doc(db, "businesses", businessId, "customers", user.uid), {
+        hasSeenOnboarding: true,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (e) {
+      console.error("[onboarding]", e);
+    }
+  }
 
   const { proximas, passadas } = useMemo(() => {
     const ativos = reservations.filter((r) => r.status !== "cancelled");
@@ -95,6 +110,7 @@ export default function StudentHomePage() {
       )}
 
       {refundModalOpen && <RefundModal onClose={() => setRefundModalOpen(false)} />}
+      {showOnboarding && <OnboardingModal onClose={handleCloseOnboarding} />}
 
       <header style={{ marginBottom: "22px", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
         <div>
@@ -402,6 +418,78 @@ function RefundModal({ onClose }: { onClose: () => void }) {
         >
           <WhatsappLogo size={17} weight="fill" /> Falar com o Ivan no WhatsApp
         </a>
+      </div>
+    </div>
+  );
+}
+
+// ─── Modal: onboarding do aluno (primeiro acesso) ─────────────────────────
+const ONBOARDING_STEPS = [
+  {
+    icon: <Image src="/parafina.png" alt="parafina" width={44} height={44} style={{ objectFit: "contain" }} />,
+    title: "Cada parafina é 1 aula",
+    body: "Parafina é o nosso nome pra crédito de aula: 1 parafina = 1 crédito = 1 aula de surf. Você compra parafinas com cartão de crédito na aba Pacotes, ou reserva um horário na hora e paga só aquela aula via PIX.",
+  },
+  {
+    icon: <Trophy size={40} weight="fill" style={{ color: "var(--gold)" }} />,
+    title: "Acompanhe sua evolução",
+    body: "Na aba Conquistas você acompanha seu XP, seu nível (Iniciante, Intermediário, Avançado) e as conquistas que já desbloqueou — um jeito de ver sua evolução no surf ao longo do tempo.",
+  },
+];
+
+function OnboardingModal({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState(0);
+  const current = ONBOARDING_STEPS[step];
+  const isLast = step === ONBOARDING_STEPS.length - 1;
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, zIndex: 60, background: "rgba(26,61,92,0.5)",
+        backdropFilter: "blur(3px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="card"
+        style={{ width: "100%", maxWidth: "380px", padding: "24px", textAlign: "center" }}
+      >
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "-6px" }}>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-3)", cursor: "pointer", padding: "2px" }} aria-label="Fechar">
+            <X size={18} />
+          </button>
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "14px" }}>{current.icon}</div>
+
+        <h2 className="font-display" style={{ fontSize: "1.3rem", color: "var(--text-1)", marginBottom: "10px" }}>
+          {current.title}
+        </h2>
+        <p style={{ fontSize: "13.5px", color: "var(--text-2)", lineHeight: 1.6, marginBottom: "20px" }}>
+          {current.body}
+        </p>
+
+        <div style={{ display: "flex", justifyContent: "center", gap: "6px", marginBottom: "18px" }}>
+          {ONBOARDING_STEPS.map((_, i) => (
+            <span
+              key={i}
+              style={{
+                width: "7px", height: "7px", borderRadius: "50%",
+                background: i === step ? "var(--coral)" : "var(--border)",
+              }}
+            />
+          ))}
+        </div>
+
+        <button
+          onClick={() => (isLast ? onClose() : setStep((s) => s + 1))}
+          className="btn-primary"
+          style={{ width: "100%", height: "44px", fontSize: "14px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+        >
+          {isLast ? "Entendi!" : "Próximo"}
+          {!isLast && <CaretRight size={15} />}
+        </button>
       </div>
     </div>
   );

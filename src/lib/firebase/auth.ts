@@ -4,7 +4,6 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   signOut,
-  sendPasswordResetEmail,
   onAuthStateChanged,
   User,
   UserCredential,
@@ -30,10 +29,6 @@ export async function signInWithGoogle(): Promise<UserCredential> {
 
 export async function logout(): Promise<void> {
   return signOut(auth);
-}
-
-export async function resetPassword(email: string): Promise<void> {
-  return sendPasswordResetEmail(auth, email);
 }
 
 export function onAuthChange(callback: (user: User | null) => void) {

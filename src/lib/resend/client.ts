@@ -50,6 +50,34 @@ export async function sendWelcomeEmail(data: WelcomeEmailData) {
   if (error) throw new Error(error.message);
 }
 
+// ─── Redefinição de senha ───────────────────────────────────────────────────
+export interface PasswordResetEmailData {
+  toEmail: string;
+  resetLink: string;
+}
+
+export async function sendPasswordResetEmail(data: PasswordResetEmailData) {
+  const html = wrapEmailHtml("Redefinir sua senha 🔑", `
+    <p>Recebemos um pedido pra redefinir a senha da sua conta na ${BRAND_NAME}.</p>
+    <p style="margin: 20px 0;">
+      <a href="${data.resetLink}" style="display: inline-block; background: #0ea5e9; color: #fff; padding: 12px 22px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+        Criar nova senha
+      </a>
+    </p>
+    <p style="color: #666; font-size: 13px;">Se não foi você quem pediu, relaxa e ignora esse e-mail — sua senha continua a mesma.</p>
+    <p style="color: #999; font-size: 12px;">Por segurança, esse link expira em algumas horas.</p>
+  `);
+
+  const { error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to: data.toEmail,
+    subject: `Redefinir sua senha — ${BRAND_NAME}`,
+    html,
+  });
+
+  if (error) throw new Error(error.message);
+}
+
 // ─── Reserva criada / confirmada ────────────────────────────────────────────
 // payment "credit" já nasce confirmada; "pix" nasce pendente e só vira
 // confirmada quando `pixConfirmed = true` (aluno clicou "Já fiz o pagamento").
