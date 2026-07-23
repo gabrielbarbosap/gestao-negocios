@@ -36,6 +36,7 @@ export default function StudentHomePage() {
   const [refundModalOpen, setRefundModalOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [duplicateAccount, setDuplicateAccount] = useState(false);
+  const [missingPhone, setMissingPhone] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -46,6 +47,9 @@ export default function StudentHomePage() {
           setProfileComplete(!!d.phone && !!d.birthDate);
           setParafinas(d.creditBalance ?? 0);
           setShowOnboarding(!d.hasSeenOnboarding);
+          // Alerta de telefone só para quem já passou pelo onboarding (evita
+          // dois modais ao mesmo tempo em contas novas).
+          setMissingPhone(!!d.hasSeenOnboarding && !d.phone);
           return;
         }
 
@@ -137,6 +141,9 @@ export default function StudentHomePage() {
       {refundModalOpen && <RefundModal onClose={() => setRefundModalOpen(false)} />}
       {showOnboarding && <OnboardingModal onClose={handleCloseOnboarding} />}
       {duplicateAccount && <DuplicateAccountModal onSwitchAccount={handleSwitchAccount} />}
+      {missingPhone && !showOnboarding && !duplicateAccount && (
+        <PhoneAlertModal onClose={() => setMissingPhone(false)} />
+      )}
 
       <header style={{ marginBottom: "22px", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
         <div>
@@ -387,6 +394,50 @@ function ReservationCard({ r, past, onCancel }: {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── Modal: alerta de telefone não cadastrado ────────────────────────────
+// Aparece pra alunos antigos (cadastrados antes do telefone virar obrigatório).
+// É dispensável — não trava o app, só orienta a cadastrar o contato.
+function PhoneAlertModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, zIndex: 60, background: "rgba(26,61,92,0.5)",
+        backdropFilter: "blur(3px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="card"
+        style={{ width: "100%", maxWidth: "380px", padding: "22px" }}
+      >
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "14px" }}>
+          <h2 className="font-display" style={{ fontSize: "1.3rem", color: "var(--text-1)", display: "flex", alignItems: "center", gap: "8px" }}>
+            <WarningCircle size={22} style={{ color: "var(--gold)" }} weight="fill" /> Cadastre seu contato
+          </h2>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-3)", cursor: "pointer", padding: "2px" }} aria-label="Fechar">
+            <X size={20} />
+          </button>
+        </div>
+
+        <p style={{ fontSize: "13.5px", color: "var(--text-2)", lineHeight: 1.6, marginBottom: "18px" }}>
+          Você ainda não tem um <strong style={{ color: "var(--text-1)" }}>número de contato (celular/WhatsApp)</strong> cadastrado.
+          Ele é importante para o Ivan falar com você sobre suas aulas. Cadastre agora — leva 1 minuto.
+        </p>
+
+        <Link
+          href="/aluno/perfil"
+          onClick={onClose}
+          className="btn-primary"
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", height: "44px", fontSize: "14px", textDecoration: "none" }}
+        >
+          Cadastrar meu telefone
+        </Link>
+      </div>
     </div>
   );
 }

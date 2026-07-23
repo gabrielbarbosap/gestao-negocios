@@ -59,6 +59,8 @@ export async function POST(req: NextRequest) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customerName: reservation.customerName,
+          customerId: reservation.customerId,
+          businessId,
           date: reservation.date,
           startTime: reservation.startTime,
           endTime: reservation.endTime,

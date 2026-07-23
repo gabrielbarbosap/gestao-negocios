@@ -91,6 +91,8 @@ export async function createReservation(
   if (!opts.payWithPix) {
     await notifyAdminTelegram({
       customerName: customer.name,
+      customerId: customer.id,
+      businessId: session.businessId,
       date: session.date,
       startTime: session.startTime,
       endTime: session.endTime,
@@ -113,6 +115,8 @@ export async function confirmPixPayment(reservation: Reservation): Promise<void>
 
   await notifyAdminTelegram({
     customerName: reservation.customerName,
+    customerId: reservation.customerId,
+    businessId: reservation.businessId,
     date: reservation.date,
     startTime: reservation.startTime,
     endTime: reservation.endTime,
@@ -137,7 +141,8 @@ export async function confirmPixPayment(reservation: Reservation): Promise<void>
 
 // ─── Notifica o admin (Telegram) sobre uma reserva paga/confirmada ────────
 async function notifyAdminTelegram(payload: {
-  customerName: string; date: string; startTime: string; endTime: string;
+  customerName: string; customerId: string; businessId: string;
+  date: string; startTime: string; endTime: string;
   location: string; payment: "credit" | "pix";
 }): Promise<void> {
   try {

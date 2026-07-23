@@ -16,6 +16,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 const schema = z.object({
   name:     z.string().min(2, "Mínimo 2 caracteres"),
   email:    z.string().email("E-mail inválido"),
+  phone:    z.string().min(8, "Informe um telefone válido"),
   password: z.string().min(6, "Mínimo 6 caracteres"),
 });
 type FormData = z.infer<typeof schema>;
@@ -58,12 +59,13 @@ function RegisterForm() {
 
 
   // ── Email / senha ───────────────────────────────────────────────────────
-  async function createCustomerDoc(uid: string, name: string, email: string) {
+  async function createCustomerDoc(uid: string, name: string, email: string, phone: string) {
     const businessId = process.env.NEXT_PUBLIC_BUSINESS_ID!;
     await setDoc(doc(db, `businesses/${businessId}/customers/${uid}`), {
       businessId,
       name,
       email,
+      phone,
       status: "active",
       creditBalance: 0,
       xp: 0,
@@ -91,7 +93,7 @@ function RegisterForm() {
     try {
       setError("");
       const credential = await signUp(data.email, data.password);
-      await createCustomerDoc(credential.user.uid, data.name, data.email);
+      await createCustomerDoc(credential.user.uid, data.name, data.email, data.phone.trim());
       router.push(redirectTo);
     } catch (err: unknown) {
       if (err instanceof Error && err.message.includes("email-already-in-use")) {
@@ -198,9 +200,10 @@ function RegisterForm() {
 
           <form onSubmit={handleSubmit(onSubmit)} style={{ display: "flex", flexDirection: "column", gap: "14px", marginTop: "4px" }}>
             {[
-              { label: "Seu nome",  name: "name"     as const, type: "text",     placeholder: "João Silva"    },
-              { label: "E-mail",    name: "email"    as const, type: "email",    placeholder: "seu@email.com" },
-              { label: "Senha",     name: "password" as const, type: "password", placeholder: "••••••••"      },
+              { label: "Seu nome",           name: "name"     as const, type: "text",     placeholder: "João Silva"        },
+              { label: "E-mail",             name: "email"    as const, type: "email",    placeholder: "seu@email.com"     },
+              { label: "Telefone / WhatsApp", name: "phone"   as const, type: "tel",      placeholder: "(11) 99999-9999"   },
+              { label: "Senha",              name: "password" as const, type: "password", placeholder: "••••••••"          },
             ].map(({ label, name, type, placeholder }) => (
               <div key={name} style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
                 <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-2)", textTransform: "uppercase", letterSpacing: "0.07em" }}>
