@@ -4,14 +4,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { CaretLeft, CaretRight, CircleNotch, Check, Waves, X, MapPin, Clock, Wallet, CreditCard, WhatsappLogo } from "@phosphor-icons/react";
+import { CaretLeft, CaretRight, CircleNotch, Check, Waves, X, MapPin, Clock, Wallet, CreditCard } from "@phosphor-icons/react";
 import type { User } from "firebase/auth";
 import { useStudentAgenda } from "@/hooks/useStudentAgenda";
 import { createReservation } from "@/lib/firebase/reservations";
 import { fetchCredits } from "@/lib/firebase/customers";
 import { LOCATIONS, getLocation, type LocationId } from "@/constants/locations";
 import { formatTime } from "@/lib/utils";
-import { PIX_KEY_CPF_FORMATTED, PIX_AMOUNT_FORMATTED, WHATSAPP_PHONE_FORMATTED, PIX_RECEIPT_WHATSAPP_LINK } from "@/constants/payment";
+import { PIX_AMOUNT_FORMATTED } from "@/constants/payment";
 import type { Session } from "@/types/session";
 
 const DAY_ABBR = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
@@ -348,19 +348,10 @@ function BookingModal({ session, user, onClose, onConfirmed, onError }: {
  <Wallet size={16} style={{ color: "var(--gold)" }} />
  <span style={{ fontSize: "13px", color: "var(--text-1)", fontWeight: 700 }}>Pagar via PIX</span>
  </div>
- <p style={{ fontSize: "11.5px", color: "var(--text-2)", lineHeight: 1.6, marginBottom: "10px" }}>
- Valor: <strong style={{ color: "var(--text-1)" }}>{PIX_AMOUNT_FORMATTED}</strong><br />
- Chave PIX (CPF): <strong style={{ color: "var(--text-1)" }}>{PIX_KEY_CPF_FORMATTED}</strong><br />
- Após pagar, envie o comprovante pelo WhatsApp e marque &quot;Já fiz o pagamento&quot; na sua aula agendada.
+ <p style={{ fontSize: "11.5px", color: "var(--text-2)", lineHeight: 1.6 }}>
+ Valor: <strong style={{ color: "var(--text-1)" }}>{PIX_AMOUNT_FORMATTED}</strong> por aula.<br />
+ Reserve agora e finalize o pagamento via PIX na aba <strong style={{ color: "var(--text-1)" }}>Minhas aulas</strong> — a confirmação é automática, sem precisar enviar comprovante.
  </p>
- <a
- href={PIX_RECEIPT_WHATSAPP_LINK}
- target="_blank"
- rel="noopener noreferrer"
- style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", height: "38px", borderRadius: "8px", background: "#25D366", color: "#fff", fontSize: "12.5px", fontWeight: 700, textDecoration: "none" }}
- >
- <WhatsappLogo size={16} weight="fill" /> Enviar comprovante — {WHATSAPP_PHONE_FORMATTED}
- </a>
  </div>
  </div>
  )}

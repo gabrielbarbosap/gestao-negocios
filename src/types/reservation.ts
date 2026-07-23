@@ -29,6 +29,11 @@ export interface Reservation {
   status: ReservationStatus;
   payment: PaymentMode;
   creditsUsed: number;
+  // Preenchidos pelo webhook da InfinitePay quando o pix é pago (ver
+  // src/app/api/webhooks/infinitepay/route.ts). Ausentes em pix antigos/manuais.
+  infinitePayTransactionNsu?: string;
+  infinitePaySlug?: string;
+  infinitePayPaidAt?: Timestamp;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }

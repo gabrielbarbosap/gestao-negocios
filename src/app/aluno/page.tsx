@@ -4,15 +4,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X, Camera, ArrowUpRight, Wallet, WhatsappLogo, Trophy, CaretRight, WarningCircle } from "@phosphor-icons/react";
+import { CalendarDots, Clock, MapPin, CircleNotch, CalendarPlus, Check, X, Camera, ArrowUpRight, WhatsappLogo, Trophy, CaretRight, WarningCircle } from "@phosphor-icons/react";
 import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { logout } from "@/lib/firebase/auth";
 import { useStudentReservations } from "@/hooks/useStudentReservations";
-import { cancelReservation, confirmPixPayment } from "@/lib/firebase/reservations";
+import { cancelReservation } from "@/lib/firebase/reservations";
 import { getLocation } from "@/constants/locations";
 import { formatTime } from "@/lib/utils";
-import { PIX_KEY_CPF_FORMATTED, PIX_AMOUNT_FORMATTED, PIX_RECEIPT_WHATSAPP_LINK, PIX_REFUND_WHATSAPP_LINK, WHATSAPP_PHONE_FORMATTED } from "@/constants/payment";
+import { PIX_AMOUNT, PIX_AMOUNT_FORMATTED, PIX_REFUND_WHATSAPP_LINK, WHATSAPP_PHONE_FORMATTED } from "@/constants/payment";
+import { InfinitePayPixButton } from "@/components/infinitepay-pix-button";
 import type { Reservation } from "@/types/reservation";
 
 // Cancelamento só é permitido até 24h antes do início da aula.
@@ -110,10 +111,6 @@ export default function StudentHomePage() {
     }
   }
 
-  async function handleConfirmPix(r: Reservation) {
-    await confirmPixPayment(r);
-    refresh();
-  }
 
   return (
     <div className="rise" style={{ maxWidth: "560px" }}>
@@ -220,7 +217,7 @@ export default function StudentHomePage() {
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "28px" }}>
-              {proximas.map((r) => <ReservationCard key={r.id} r={r} onCancel={handleCancel} onConfirmPix={handleConfirmPix} />)}
+              {proximas.map((r) => <ReservationCard key={r.id} r={r} onCancel={handleCancel} />)}
             </div>
           )}
 
@@ -272,20 +269,18 @@ export default function StudentHomePage() {
   );
 }
 
-function ReservationCard({ r, past, onCancel, onConfirmPix }: {
-  r: Reservation; past?: boolean; onCancel?: (r: Reservation) => Promise<void>; onConfirmPix?: (r: Reservation) => Promise<void>;
+function ReservationCard({ r, past, onCancel }: {
+  r: Reservation; past?: boolean; onCancel?: (r: Reservation) => Promise<void>;
 }) {
   const loc = getLocation(r.location);
   const [confirming, setConfirming] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState("");
-  const [confirmingPix, setConfirmingPix] = useState(false);
   const pixPending = r.payment === "pix" && r.status === "reserved";
   // Trava síncrona contra clique/toque duplo — o estado do React só reflete
   // no próximo render, então um segundo clique bem rápido pode passar pelo
   // "disabled" antes dele atualizar. O ref bloqueia na hora, sem esperar.
   const cancellingRef = useRef(false);
-  const confirmingPixRef = useRef(false);
 
   const dateLabel = new Date(r.date + "T00:00:00").toLocaleDateString("pt-BR", {
     weekday: "short", day: "2-digit", month: "short",
@@ -307,17 +302,6 @@ function ReservationCard({ r, past, onCancel, onConfirmPix }: {
     }
   }
 
-  async function handleConfirmPix() {
-    if (!onConfirmPix || confirmingPixRef.current) return;
-    confirmingPixRef.current = true;
-    setConfirmingPix(true);
-    try {
-      await onConfirmPix(r);
-    } finally {
-      confirmingPixRef.current = false;
-      setConfirmingPix(false);
-    }
-  }
 
   return (
     <div className="card" style={{ padding: "14px 16px", opacity: past ? 0.6 : 1 }}>
@@ -358,29 +342,15 @@ function ReservationCard({ r, past, onCancel, onConfirmPix }: {
       {pixPending && (
         <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px solid var(--border)" }}>
           <p style={{ fontSize: "11.5px", color: "var(--text-2)", lineHeight: 1.6, marginBottom: "10px" }}>
-            Valor: <strong style={{ color: "var(--text-1)" }}>{PIX_AMOUNT_FORMATTED}</strong><br />
-            Chave PIX (CPF): <strong style={{ color: "var(--text-1)" }}>{PIX_KEY_CPF_FORMATTED}</strong><br />
-            Envie o comprovante pelo WhatsApp e depois confirme abaixo.
+            Pague <strong style={{ color: "var(--text-1)" }}>{PIX_AMOUNT_FORMATTED}</strong> via PIX pra
+            confirmar sua aula. O pagamento é confirmado na hora — sem precisar enviar comprovante.
           </p>
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-            <a
-              href={PIX_RECEIPT_WHATSAPP_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display: "flex", alignItems: "center", gap: "6px", height: "34px", padding: "0 14px", borderRadius: "8px", background: "#25D366", color: "#fff", fontSize: "12.5px", fontWeight: 700, textDecoration: "none" }}
-            >
-              <WhatsappLogo size={15} weight="fill" /> Enviar comprovante
-            </a>
-            <button
-              onClick={handleConfirmPix}
-              disabled={confirmingPix}
-              className="btn-primary"
-              style={{ fontSize: "12.5px", padding: "0 14px", height: "34px", display: "flex", alignItems: "center", gap: "6px" }}
-            >
-              {confirmingPix ? <CircleNotch size={12} className="ph-spin" /> : <Wallet size={13} />}
-              Já fiz o pagamento
-            </button>
-          </div>
+          <InfinitePayPixButton
+            reservation={r}
+            amountInReais={PIX_AMOUNT}
+            label={`Pagar ${PIX_AMOUNT_FORMATTED} via PIX`}
+            style={{ fontSize: "12.5px", padding: "0 14px", height: "36px" }}
+          />
         </div>
       )}
 
