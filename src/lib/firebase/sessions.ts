@@ -5,7 +5,7 @@
 //  status: "available" (liberado) | "blocked" | "full" | "cancelled"
 // ════════════════════════════════════════════════════════════════════════
 import {
-  collection, collectionGroup, doc, getDocs, writeBatch, serverTimestamp, updateDoc,
+  collection, collectionGroup, doc, getDocs, writeBatch, serverTimestamp, updateDoc, addDoc,
 } from "firebase/firestore";
 import { db } from "./config";
 import { queryDocuments, orderBy } from "./firestore";
@@ -84,6 +84,49 @@ export async function blockSession(businessId: string, sessionId: string): Promi
   await updateDoc(doc(db, sessionsPath(businessId), sessionId), {
     status: "blocked", updatedAt: serverTimestamp(),
   });
+}
+
+// ─── Admin: cria UMA aula avulsa (usado na agenda do dia) ─────────────────
+// Erro lançado quando já existe uma aula ativa no mesmo dia/praia/horário.
+export class DuplicateSessionError extends Error {
+  constructor() {
+    super("Já existe uma aula nesse horário e nessa praia neste dia.");
+    this.name = "DuplicateSessionError";
+  }
+}
+
+export interface CreateSessionArgs {
+  location: LocationId;
+  date: string;       // "YYYY-MM-DD"
+  startHour: number;  // hora cheia de início (5..17), slot de 1h
+  capacity: number;
+}
+
+// Cria uma sessão `available` para o dia. Bloqueia duplicata: se já houver uma
+// aula não-cancelada no mesmo dia + praia + horário, lança DuplicateSessionError.
+export async function createSession(
+  businessId: string,
+  { location, date, startHour, capacity }: CreateSessionArgs,
+): Promise<string> {
+  const startTime = `${pad(startHour)}:00`;
+  const endTime = `${pad(startHour + 1)}:00`;
+
+  const existing = await listSessions(businessId);
+  const dup = existing.find(
+    (s) =>
+      s.date === date &&
+      s.location === location &&
+      s.startTime === startTime &&
+      s.status !== "cancelled",
+  );
+  if (dup) throw new DuplicateSessionError();
+
+  const ref = await addDoc(collection(db, sessionsPath(businessId)), {
+    businessId, location, date, startTime, endTime,
+    maxCapacity: capacity, currentCapacity: 0, status: "available",
+    isRecurring: false, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+  });
+  return ref.id;
 }
 
 // ─── Aluno: aulas disponíveis (todas as localidades) ──────────────────────

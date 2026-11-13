@@ -4,10 +4,12 @@ import { useMemo, useState } from "react";
 import {
   CalendarDots, Clock, MapPin, Users, CircleNotch,
   CaretLeft, CaretRight, CalendarCheck, WaveTriangle, Wallet, Copy, Check,
+  Plus, X, FloppyDisk, WarningCircle,
 } from "@phosphor-icons/react";
 import { useBusinessId } from "@/hooks/useBusinessId";
 import { useAdminAgenda } from "@/hooks/useAdminAgenda";
 import { getLocation, LOCATIONS, type LocationId } from "@/constants/locations";
+import { HOURS, DEFAULT_CAPACITY, createSession, DuplicateSessionError } from "@/lib/firebase/sessions";
 import { formatTime } from "@/lib/utils";
 import type { Session } from "@/types/session";
 import type { Reservation } from "@/types/reservation";
@@ -44,10 +46,11 @@ const fmtDate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
 
 export default function AgendaPage() {
   const businessId = useBusinessId();
-  const { loading, error, sessions, reservationsBySession } = useAdminAgenda(businessId);
+  const { loading, error, sessions, reservationsBySession, reload } = useAdminAgenda(businessId);
   const [selected, setSelected] = useState<Date>(() => new Date());
   const [locationFilter, setLocationFilter] = useState<LocationId | "todas">("todas");
   const [copied, setCopied] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
 
   const selectedStr = fmtDate(selected);
   const isToday = selectedStr === fmtDate(new Date());
@@ -134,6 +137,9 @@ export default function AgendaPage() {
             onChange={(e) => { if (e.target.value) setSelected(new Date(e.target.value + "T00:00:00")); }}
             className="ag-dateinput"
           />
+          <button onClick={() => setShowAdd(true)} className="ag-add">
+            <Plus size={15} weight="bold" /> Adicionar aula
+          </button>
         </div>
       </div>
 
@@ -185,11 +191,16 @@ export default function AgendaPage() {
           <CalendarDots size={36} style={{ color: "var(--text-3)", margin: "0 auto 14px" }} />
           <h3 className="font-display" style={{ fontSize: "1.3rem", color: "var(--text-1)" }}>Nenhuma aula neste dia</h3>
           <p style={{ fontSize: "13px", color: "var(--text-2)", marginTop: "6px" }}>
-            Libere horários para abrir aulas neste dia.
+            Adicione uma aula para este dia ou libere vários horários de uma vez.
           </p>
-          <a href="/admin/horarios" className="btn-outline" style={{ display: "inline-block", marginTop: "16px", padding: "9px 20px", fontSize: "13px" }}>
-            Liberar horários
-          </a>
+          <div style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap", marginTop: "16px" }}>
+            <button onClick={() => setShowAdd(true)} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "9px 20px", fontSize: "13px" }}>
+              <Plus size={15} weight="bold" /> Adicionar aula
+            </button>
+            <a href="/admin/horarios" className="btn-outline" style={{ display: "inline-block", padding: "9px 20px", fontSize: "13px" }}>
+              Liberar horários
+            </a>
+          </div>
         </div>
       ) : (
         <div className="rise-3" style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
@@ -225,6 +236,22 @@ export default function AgendaPage() {
         </div>
       )}
 
+      {/* ── Modal: adicionar aula ─────────────────────────────────────────── */}
+      {showAdd && businessId && (
+        <AddClassModal
+          businessId={businessId}
+          date={selectedStr}
+          dateLabel={dateLabel}
+          defaultLocation={locationFilter === "todas" ? LOCATIONS[0].id : locationFilter}
+          onClose={() => setShowAdd(false)}
+          onCreated={(createdDate) => {
+            setShowAdd(false);
+            setSelected(new Date(createdDate + "T00:00:00"));
+            reload();
+          }}
+        />
+      )}
+
       <style>{`
         .admin-page { padding: 32px 28px 60px; }
         .admin-title { font-size: 2.2rem; }
@@ -235,6 +262,23 @@ export default function AgendaPage() {
         .ag-action { padding: 8px 12px; }
         .ag-nav:hover, .ag-action:hover { color: var(--teal-light); border-color: var(--border-lit); background: var(--bg-4); }
         .ag-dateinput { background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px; color: var(--text-1); font-family: inherit; font-size: 13px; padding: 8px 10px; color-scheme: dark; }
+        .ag-add { display: inline-flex; align-items: center; gap: 6px; background: var(--coral); border: 1px solid var(--coral); border-radius: 8px; color: #fff; cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: 700; padding: 8px 14px; transition: all 0.14s; }
+        .ag-add:hover { filter: brightness(1.07); }
+
+        .ag-overlay { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.55); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .ag-modal { width: 100%; max-width: 440px; background: var(--card-bg); border: 1px solid var(--border-lit); border-radius: 16px; box-shadow: 0 24px 60px rgba(0,0,0,0.45); overflow: hidden; }
+        .ag-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+        .ag-modal-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+        .ag-modal-foot { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+        .ag-field-label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); margin-bottom: 7px; }
+        .ag-input { width: 100%; background: var(--bg-3); border: 1px solid var(--border); border-radius: 9px; color: var(--text-1); font-family: inherit; font-size: 14px; padding: 10px 12px; color-scheme: dark; }
+        .ag-input:focus { outline: none; border-color: var(--border-lit); }
+        .ag-loc-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .ag-loc-btn { flex: 1; min-width: 120px; padding: 10px 12px; border-radius: 9px; font-size: 13px; font-weight: 700; border: 1px solid var(--border); background: var(--bg-3); color: var(--text-2); cursor: pointer; font-family: inherit; transition: all 0.14s; }
+        .ag-loc-btn.active { background: var(--coral); border-color: var(--coral); color: #fff; }
+        .ag-modal-close { background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px; color: var(--text-2); cursor: pointer; padding: 7px; display: inline-flex; transition: all 0.14s; }
+        .ag-modal-close:hover { color: var(--text-1); border-color: var(--border-lit); }
+        .ag-dup { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--sunset-2); background: rgba(232,120,48,0.08); border: 1px solid var(--border-warm); border-radius: 9px; padding: 10px 12px; }
         @media (max-width: 640px) {
           .admin-page { padding: 20px 16px 48px; }
           .admin-title { font-size: 1.7rem; }
@@ -375,6 +419,144 @@ function ClassCard({ s, reservations, dateLabel }: { s: Session; reservations: R
             ))}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Modal: adicionar uma aula ao dia ──────────────────────────────────────
+const hourLabel = (h: number) => `${pad(h)}h – ${pad(h + 1)}h`;
+
+function AddClassModal({
+  businessId, date, dateLabel, defaultLocation, onClose, onCreated,
+}: {
+  businessId: string;
+  date: string;
+  dateLabel: string;
+  defaultLocation: LocationId;
+  onClose: () => void;
+  onCreated: (createdDate: string) => void;
+}) {
+  const [classDate, setClassDate] = useState(date);
+  const [location, setLocation] = useState<LocationId>(defaultLocation);
+  const [hour, setHour] = useState<number>(HOURS[1]); // 06h por padrão
+  const [capacityInput, setCapacityInput] = useState(String(DEFAULT_CAPACITY));
+  const [saving, setSaving] = useState(false);
+  const [dupMsg, setDupMsg] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit() {
+    if (saving) return;
+    setSaving(true);
+    setDupMsg(null);
+    setError(null);
+    const n = parseInt(capacityInput, 10);
+    const capacity = isNaN(n) ? DEFAULT_CAPACITY : Math.min(50, Math.max(1, n));
+    try {
+      await createSession(businessId, { location, date: classDate, startHour: hour, capacity });
+      onCreated(classDate);
+    } catch (e) {
+      if (e instanceof DuplicateSessionError) {
+        setDupMsg(e.message);
+      } else {
+        console.error("[agenda] createSession", e);
+        setError("Não foi possível criar a aula. Tente novamente.");
+      }
+      setSaving(false);
+    }
+  }
+
+  const sameDay = classDate === date;
+
+  return (
+    <div className="ag-overlay" onClick={onClose}>
+      <div className="ag-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+        <div className="ag-modal-head">
+          <div>
+            <p className="font-display" style={{ fontSize: "1.25rem", color: "var(--text-1)", lineHeight: 1.1 }}>Nova aula</p>
+            <p style={{ fontSize: "12.5px", color: "var(--text-2)", marginTop: "2px", textTransform: "capitalize" }}>
+              {sameDay ? dateLabel : classDate}
+            </p>
+          </div>
+          <button className="ag-modal-close" onClick={onClose} aria-label="Fechar"><X size={16} /></button>
+        </div>
+
+        <div className="ag-modal-body">
+          {/* Data */}
+          <div>
+            <label className="ag-field-label">Data</label>
+            <input
+              type="date" className="ag-input" value={classDate}
+              onChange={(e) => { if (e.target.value) { setClassDate(e.target.value); setDupMsg(null); } }}
+            />
+          </div>
+
+          {/* Praia */}
+          <div>
+            <label className="ag-field-label">Praia</label>
+            <div className="ag-loc-row">
+              {LOCATIONS.map((l) => (
+                <button
+                  key={l.id} type="button"
+                  className={`ag-loc-btn ${location === l.id ? "active" : ""}`}
+                  onClick={() => { setLocation(l.id); setDupMsg(null); }}
+                >
+                  {l.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Horário + vagas */}
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            <div style={{ flex: "1 1 180px" }}>
+              <label className="ag-field-label"><Clock size={11} style={{ verticalAlign: "-1px", marginRight: "4px" }} />Horário</label>
+              <select
+                className="ag-input" value={hour}
+                onChange={(e) => { setHour(Number(e.target.value)); setDupMsg(null); }}
+              >
+                {HOURS.map((h) => (
+                  <option key={h} value={h}>{hourLabel(h)}</option>
+                ))}
+              </select>
+            </div>
+            <div style={{ flex: "1 1 120px" }}>
+              <label className="ag-field-label"><Users size={11} style={{ verticalAlign: "-1px", marginRight: "4px" }} />Vagas</label>
+              <input
+                type="number" min={1} max={50} className="ag-input" value={capacityInput}
+                onChange={(e) => setCapacityInput(e.target.value)}
+                onBlur={() => {
+                  const n = parseInt(capacityInput, 10);
+                  const clamped = isNaN(n) || n < 1 ? 1 : Math.min(50, n);
+                  setCapacityInput(String(clamped));
+                }}
+              />
+            </div>
+          </div>
+
+          {dupMsg && (
+            <div className="ag-dup">
+              <WarningCircle size={16} style={{ flexShrink: 0, marginTop: "1px" }} />
+              <span>{dupMsg}</span>
+            </div>
+          )}
+          {error && (
+            <div className="ag-dup" style={{ color: "var(--sunset-2)" }}>
+              <WarningCircle size={16} style={{ flexShrink: 0, marginTop: "1px" }} />
+              <span>{error}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="ag-modal-foot">
+          <button onClick={onClose} className="btn-outline" style={{ padding: "9px 18px", fontSize: "13px" }}>
+            Cancelar
+          </button>
+          <button onClick={handleSubmit} disabled={saving} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "7px", padding: "9px 20px", fontSize: "13px" }}>
+            {saving ? <CircleNotch size={16} className="ph-spin" /> : <FloppyDisk size={16} />}
+            {saving ? "Criando..." : "Criar aula"}
+          </button>
+        </div>
       </div>
     </div>
   );
