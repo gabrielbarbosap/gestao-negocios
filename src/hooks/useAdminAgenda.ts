@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { listSessions } from "@/lib/firebase/sessions";
 import { listReservations } from "@/lib/firebase/reservations";
+import { listCustomers } from "@/lib/firebase/customers";
 import type { Session } from "@/types/session";
 import type { Reservation } from "@/types/reservation";
+import type { Customer } from "@/types/customer";
 
 export interface AgendaData {
   loading: boolean;
@@ -12,6 +14,8 @@ export interface AgendaData {
   sessions: Session[];
   // mapa sessionId → reservas ativas (alunos)
   reservationsBySession: Record<string, Reservation[]>;
+  // alunos do negócio (para matricular numa aula direto da agenda)
+  customers: Customer[];
   reload: () => void;
 }
 
@@ -20,6 +24,7 @@ export function useAdminAgenda(businessId: string | null | undefined): AgendaDat
   const [error, setError] = useState<string | null>(null);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [reservationsBySession, setMap] = useState<Record<string, Reservation[]>>({});
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
@@ -32,9 +37,10 @@ export function useAdminAgenda(businessId: string | null | undefined): AgendaDat
 
     (async () => {
       try {
-        const [sess, reservas] = await Promise.all([
+        const [sess, reservas, alunos] = await Promise.all([
           listSessions(businessId),
           listReservations(businessId),
+          listCustomers(businessId),
         ]);
         if (cancelled) return;
 
@@ -46,6 +52,7 @@ export function useAdminAgenda(businessId: string | null | undefined): AgendaDat
 
         setSessions(sess);
         setMap(map);
+        setCustomers(alunos.sort((a, b) => (a.name || "").localeCompare(b.name || "")));
         setLoading(false);
       } catch (err) {
         if (cancelled) return;
@@ -58,5 +65,5 @@ export function useAdminAgenda(businessId: string | null | undefined): AgendaDat
     return () => { cancelled = true; };
   }, [businessId, tick]);
 
-  return { loading, error, sessions, reservationsBySession, reload: () => setTick((t) => t + 1) };
+  return { loading, error, sessions, reservationsBySession, customers, reload: () => setTick((t) => t + 1) };
 }

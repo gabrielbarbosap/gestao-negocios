@@ -2,17 +2,18 @@
 
 import { useMemo, useState } from "react";
 import {
-  CalendarDots, Clock, MapPin, Users, CircleNotch,
+  CalendarDots, MapPin, Users, CircleNotch,
   CaretLeft, CaretRight, CalendarCheck, WaveTriangle, Wallet, Copy, Check,
-  Plus, X, FloppyDisk, WarningCircle,
+  X, WarningCircle, UserPlus, MagnifyingGlass,
 } from "@phosphor-icons/react";
 import { useBusinessId } from "@/hooks/useBusinessId";
 import { useAdminAgenda } from "@/hooks/useAdminAgenda";
 import { getLocation, LOCATIONS, type LocationId } from "@/constants/locations";
-import { HOURS, DEFAULT_CAPACITY, createSession, DuplicateSessionError } from "@/lib/firebase/sessions";
+import { createReservation } from "@/lib/firebase/reservations";
 import { formatTime } from "@/lib/utils";
 import type { Session } from "@/types/session";
 import type { Reservation } from "@/types/reservation";
+import type { Customer } from "@/types/customer";
 
 // Monta um texto simples com a agenda do dia, pronto pra colar no WhatsApp.
 function buildAgendaText(
@@ -46,11 +47,10 @@ const fmtDate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
 
 export default function AgendaPage() {
   const businessId = useBusinessId();
-  const { loading, error, sessions, reservationsBySession, reload } = useAdminAgenda(businessId);
+  const { loading, error, sessions, reservationsBySession, customers, reload } = useAdminAgenda(businessId);
   const [selected, setSelected] = useState<Date>(() => new Date());
   const [locationFilter, setLocationFilter] = useState<LocationId | "todas">("todas");
   const [copied, setCopied] = useState(false);
-  const [showAdd, setShowAdd] = useState(false);
 
   const selectedStr = fmtDate(selected);
   const isToday = selectedStr === fmtDate(new Date());
@@ -137,9 +137,6 @@ export default function AgendaPage() {
             onChange={(e) => { if (e.target.value) setSelected(new Date(e.target.value + "T00:00:00")); }}
             className="ag-dateinput"
           />
-          <button onClick={() => setShowAdd(true)} className="ag-add">
-            <Plus size={15} weight="bold" /> Adicionar aula
-          </button>
         </div>
       </div>
 
@@ -191,16 +188,11 @@ export default function AgendaPage() {
           <CalendarDots size={36} style={{ color: "var(--text-3)", margin: "0 auto 14px" }} />
           <h3 className="font-display" style={{ fontSize: "1.3rem", color: "var(--text-1)" }}>Nenhuma aula neste dia</h3>
           <p style={{ fontSize: "13px", color: "var(--text-2)", marginTop: "6px" }}>
-            Adicione uma aula para este dia ou libere vários horários de uma vez.
+            Libere horários para abrir aulas neste dia.
           </p>
-          <div style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap", marginTop: "16px" }}>
-            <button onClick={() => setShowAdd(true)} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "9px 20px", fontSize: "13px" }}>
-              <Plus size={15} weight="bold" /> Adicionar aula
-            </button>
-            <a href="/admin/horarios" className="btn-outline" style={{ display: "inline-block", padding: "9px 20px", fontSize: "13px" }}>
-              Liberar horários
-            </a>
-          </div>
+          <a href="/admin/horarios" className="btn-outline" style={{ display: "inline-block", marginTop: "16px", padding: "9px 20px", fontSize: "13px" }}>
+            Liberar horários
+          </a>
         </div>
       ) : (
         <div className="rise-3" style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
@@ -227,6 +219,9 @@ export default function AgendaPage() {
                       s={s}
                       reservations={(reservationsBySession[s.id] ?? []).filter(r => r.status !== "cancelled")}
                       dateLabel={dateLabel}
+                      businessId={businessId}
+                      customers={customers}
+                      onEnrolled={reload}
                     />
                   ))}
                 </div>
@@ -234,22 +229,6 @@ export default function AgendaPage() {
             );
           })}
         </div>
-      )}
-
-      {/* ── Modal: adicionar aula ─────────────────────────────────────────── */}
-      {showAdd && businessId && (
-        <AddClassModal
-          businessId={businessId}
-          date={selectedStr}
-          dateLabel={dateLabel}
-          defaultLocation={locationFilter === "todas" ? LOCATIONS[0].id : locationFilter}
-          onClose={() => setShowAdd(false)}
-          onCreated={(createdDate) => {
-            setShowAdd(false);
-            setSelected(new Date(createdDate + "T00:00:00"));
-            reload();
-          }}
-        />
       )}
 
       <style>{`
@@ -262,8 +241,18 @@ export default function AgendaPage() {
         .ag-action { padding: 8px 12px; }
         .ag-nav:hover, .ag-action:hover { color: var(--teal-light); border-color: var(--border-lit); background: var(--bg-4); }
         .ag-dateinput { background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px; color: var(--text-1); font-family: inherit; font-size: 13px; padding: 8px 10px; color-scheme: dark; }
-        .ag-add { display: inline-flex; align-items: center; gap: 6px; background: var(--coral); border: 1px solid var(--coral); border-radius: 8px; color: #fff; cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: 700; padding: 8px 14px; transition: all 0.14s; }
-        .ag-add:hover { filter: brightness(1.07); }
+        .ag-enroll { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px; color: var(--ocean); cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 700; padding: 7px 12px; transition: all 0.14s; white-space: nowrap; }
+        .ag-enroll:hover:not(:disabled) { color: #fff; background: var(--coral); border-color: var(--coral); }
+        .ag-enroll:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .ag-stu-list { display: flex; flex-direction: column; gap: 4px; max-height: 280px; overflow-y: auto; margin: 0 -6px; padding: 0 6px; }
+        .ag-stu-row { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-3); cursor: pointer; font-family: inherit; transition: all 0.13s; }
+        .ag-stu-row:hover { border-color: var(--border-lit); background: var(--bg-4); }
+        .ag-stu-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--bg-4); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--ocean); flex-shrink: 0; }
+        .ag-stu-credit { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--text-2); background: var(--bg-4); border: 1px solid var(--border); padding: 4px 9px; border-radius: 99px; flex-shrink: 0; }
+        .ag-stu-picked { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 11px; border: 1px solid var(--border-lit); background: var(--bg-3); }
+        .ag-link { background: none; border: none; color: var(--ocean); cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: 700; flex-shrink: 0; }
+        .ag-link:hover { text-decoration: underline; }
 
         .ag-overlay { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.55); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; padding: 20px; }
         .ag-modal { width: 100%; max-width: 440px; background: var(--card-bg); border: 1px solid var(--border-lit); border-radius: 16px; box-shadow: 0 24px 60px rgba(0,0,0,0.45); overflow: hidden; }
@@ -276,6 +265,7 @@ export default function AgendaPage() {
         .ag-loc-row { display: flex; gap: 8px; flex-wrap: wrap; }
         .ag-loc-btn { flex: 1; min-width: 120px; padding: 10px 12px; border-radius: 9px; font-size: 13px; font-weight: 700; border: 1px solid var(--border); background: var(--bg-3); color: var(--text-2); cursor: pointer; font-family: inherit; transition: all 0.14s; }
         .ag-loc-btn.active { background: var(--coral); border-color: var(--coral); color: #fff; }
+        .ag-loc-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .ag-modal-close { background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px; color: var(--text-2); cursor: pointer; padding: 7px; display: inline-flex; transition: all 0.14s; }
         .ag-modal-close:hover { color: var(--text-1); border-color: var(--border-lit); }
         .ag-dup { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--sunset-2); background: rgba(232,120,48,0.08); border: 1px solid var(--border-warm); border-radius: 9px; padding: 10px 12px; }
@@ -300,10 +290,21 @@ function Pill({ icon, text }: { icon: React.ReactNode; text: string }) {
   );
 }
 
-function ClassCard({ s, reservations, dateLabel }: { s: Session; reservations: Reservation[]; dateLabel: string }) {
+function ClassCard({
+  s, reservations, dateLabel, businessId, customers, onEnrolled,
+}: {
+  s: Session;
+  reservations: Reservation[];
+  dateLabel: string;
+  businessId: string | null | undefined;
+  customers: Customer[];
+  onEnrolled: () => void;
+}) {
+  const [showEnroll, setShowEnroll] = useState(false);
   const pct = s.maxCapacity > 0 ? Math.round((reservations.length / s.maxCapacity) * 100) : 0;
   const isFull = reservations.length >= s.maxCapacity;
   const isEmpty = reservations.length === 0;
+  const enrolledIds = useMemo(() => new Set(reservations.map((r) => r.customerId)), [reservations]);
 
   return (
     <div className="card" style={{ overflow: "hidden", border: isFull ? "1px solid rgba(245,192,48,0.3)" : undefined }}>
@@ -366,9 +367,19 @@ function ClassCard({ s, reservations, dateLabel }: { s: Session; reservations: R
 
       {/* ── Lista de alunos ───────────────────────── */}
       <div style={{ padding: "16px 20px" }}>
-        <p style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-3)", marginBottom: "12px" }}>
-          Alunos inscritos
-        </p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", marginBottom: "12px" }}>
+          <p style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-3)" }}>
+            Alunos inscritos
+          </p>
+          <button
+            onClick={() => setShowEnroll(true)}
+            disabled={isFull || !businessId}
+            className="ag-enroll"
+            title={isFull ? "Aula lotada" : "Matricular aluno nesta aula"}
+          >
+            <UserPlus size={14} weight="bold" /> Matricular aluno
+          </button>
+        </div>
 
         {isEmpty ? (
           <p style={{ fontSize: "13px", color: "var(--text-3)", fontStyle: "italic" }}>
@@ -420,131 +431,184 @@ function ClassCard({ s, reservations, dateLabel }: { s: Session; reservations: R
           </div>
         )}
       </div>
+
+      {showEnroll && businessId && (
+        <EnrollModal
+          session={s}
+          customers={customers}
+          enrolledIds={enrolledIds}
+          dateLabel={dateLabel}
+          onClose={() => setShowEnroll(false)}
+          onEnrolled={() => { setShowEnroll(false); onEnrolled(); }}
+        />
+      )}
     </div>
   );
 }
 
-// ─── Modal: adicionar uma aula ao dia ──────────────────────────────────────
-const hourLabel = (h: number) => `${pad(h)}h – ${pad(h + 1)}h`;
-
-function AddClassModal({
-  businessId, date, dateLabel, defaultLocation, onClose, onCreated,
+// ─── Modal: matricular um aluno numa aula já existente ─────────────────────
+function EnrollModal({
+  session, customers, enrolledIds, dateLabel, onClose, onEnrolled,
 }: {
-  businessId: string;
-  date: string;
+  session: Session;
+  customers: Customer[];
+  enrolledIds: Set<string>;
   dateLabel: string;
-  defaultLocation: LocationId;
   onClose: () => void;
-  onCreated: (createdDate: string) => void;
+  onEnrolled: () => void;
 }) {
-  const [classDate, setClassDate] = useState(date);
-  const [location, setLocation] = useState<LocationId>(defaultLocation);
-  const [hour, setHour] = useState<number>(HOURS[1]); // 06h por padrão
-  const [capacityInput, setCapacityInput] = useState(String(DEFAULT_CAPACITY));
+  const [search, setSearch] = useState("");
+  const [picked, setPicked] = useState<Customer | null>(null);
+  const [payWithPix, setPayWithPix] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [dupMsg, setDupMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit() {
-    if (saving) return;
-    setSaving(true);
-    setDupMsg(null);
+  // só alunos ainda não inscritos nesta aula, filtrados pela busca
+  const results = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return customers
+      .filter((c) => !enrolledIds.has(c.id))
+      .filter((c) =>
+        q === "" ||
+        (c.name || "").toLowerCase().includes(q) ||
+        (c.email || "").toLowerCase().includes(q),
+      )
+      .slice(0, 30);
+  }, [customers, enrolledIds, search]);
+
+  function choose(c: Customer) {
+    setPicked(c);
     setError(null);
-    const n = parseInt(capacityInput, 10);
-    const capacity = isNaN(n) ? DEFAULT_CAPACITY : Math.min(50, Math.max(1, n));
+    // se não tem parafina, já sugere PIX
+    setPayWithPix((c.creditBalance ?? 0) < 1);
+  }
+
+  async function handleSubmit() {
+    if (saving || !picked) return;
+    if (!payWithPix && (picked.creditBalance ?? 0) < 1) {
+      setError("Este aluno não tem parafinas. Use PIX ou adicione crédito antes.");
+      return;
+    }
+    setSaving(true);
+    setError(null);
     try {
-      await createSession(businessId, { location, date: classDate, startHour: hour, capacity });
-      onCreated(classDate);
+      await createReservation(
+        session,
+        { id: picked.id, name: picked.name || "Aluno", email: picked.email || "" },
+        { payWithPix },
+      );
+      onEnrolled();
     } catch (e) {
-      if (e instanceof DuplicateSessionError) {
-        setDupMsg(e.message);
-      } else {
-        console.error("[agenda] createSession", e);
-        setError("Não foi possível criar a aula. Tente novamente.");
-      }
+      console.error("[agenda] createReservation", e);
+      setError("Não foi possível matricular o aluno. Tente novamente.");
       setSaving(false);
     }
   }
 
-  const sameDay = classDate === date;
+  const credits = picked?.creditBalance ?? 0;
 
   return (
     <div className="ag-overlay" onClick={onClose}>
       <div className="ag-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
         <div className="ag-modal-head">
           <div>
-            <p className="font-display" style={{ fontSize: "1.25rem", color: "var(--text-1)", lineHeight: 1.1 }}>Nova aula</p>
+            <p className="font-display" style={{ fontSize: "1.25rem", color: "var(--text-1)", lineHeight: 1.1 }}>Matricular aluno</p>
             <p style={{ fontSize: "12.5px", color: "var(--text-2)", marginTop: "2px", textTransform: "capitalize" }}>
-              {sameDay ? dateLabel : classDate}
+              {dateLabel} · {formatTime(session.startTime)}–{formatTime(session.endTime)} · {getLocation(session.location).name}
             </p>
           </div>
           <button className="ag-modal-close" onClick={onClose} aria-label="Fechar"><X size={16} /></button>
         </div>
 
         <div className="ag-modal-body">
-          {/* Data */}
-          <div>
-            <label className="ag-field-label">Data</label>
-            <input
-              type="date" className="ag-input" value={classDate}
-              onChange={(e) => { if (e.target.value) { setClassDate(e.target.value); setDupMsg(null); } }}
-            />
-          </div>
+          {!picked ? (
+            <>
+              <div>
+                <label className="ag-field-label">Buscar aluno</label>
+                <div style={{ position: "relative" }}>
+                  <MagnifyingGlass size={15} style={{ position: "absolute", left: "11px", top: "50%", transform: "translateY(-50%)", color: "var(--text-3)" }} />
+                  <input
+                    autoFocus type="text" className="ag-input" placeholder="Nome ou e-mail"
+                    value={search} onChange={(e) => setSearch(e.target.value)}
+                    style={{ paddingLeft: "34px" }}
+                  />
+                </div>
+              </div>
 
-          {/* Praia */}
-          <div>
-            <label className="ag-field-label">Praia</label>
-            <div className="ag-loc-row">
-              {LOCATIONS.map((l) => (
-                <button
-                  key={l.id} type="button"
-                  className={`ag-loc-btn ${location === l.id ? "active" : ""}`}
-                  onClick={() => { setLocation(l.id); setDupMsg(null); }}
-                >
-                  {l.name}
-                </button>
-              ))}
-            </div>
-          </div>
+              <div className="ag-stu-list">
+                {results.length === 0 ? (
+                  <p style={{ fontSize: "13px", color: "var(--text-3)", fontStyle: "italic", padding: "8px 2px" }}>
+                    {customers.filter((c) => !enrolledIds.has(c.id)).length === 0
+                      ? "Todos os alunos já estão inscritos nesta aula."
+                      : "Nenhum aluno encontrado."}
+                  </p>
+                ) : (
+                  results.map((c) => (
+                    <button key={c.id} className="ag-stu-row" onClick={() => choose(c)}>
+                      <div className="ag-stu-avatar">{(c.name || "?").charAt(0).toUpperCase()}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: "14px", color: "var(--text-1)", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name || "Aluno"}</p>
+                        {c.email && <p style={{ fontSize: "11.5px", color: "var(--text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.email}</p>}
+                      </div>
+                      <span className="ag-stu-credit">
+                        <WaveTriangle size={11} /> {c.creditBalance ?? 0}
+                      </span>
+                    </button>
+                  ))
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              {/* aluno escolhido */}
+              <div className="ag-stu-picked">
+                <div className="ag-stu-avatar">{(picked.name || "?").charAt(0).toUpperCase()}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: "14.5px", color: "var(--text-1)", fontWeight: 700 }}>{picked.name || "Aluno"}</p>
+                  <p style={{ fontSize: "12px", color: "var(--text-3)" }}>
+                    {credits} parafina{credits !== 1 ? "s" : ""} disponíve{credits !== 1 ? "is" : "l"}
+                  </p>
+                </div>
+                <button className="ag-link" onClick={() => { setPicked(null); setError(null); }}>Trocar</button>
+              </div>
 
-          {/* Horário + vagas */}
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-            <div style={{ flex: "1 1 180px" }}>
-              <label className="ag-field-label"><Clock size={11} style={{ verticalAlign: "-1px", marginRight: "4px" }} />Horário</label>
-              <select
-                className="ag-input" value={hour}
-                onChange={(e) => { setHour(Number(e.target.value)); setDupMsg(null); }}
-              >
-                {HOURS.map((h) => (
-                  <option key={h} value={h}>{hourLabel(h)}</option>
-                ))}
-              </select>
-            </div>
-            <div style={{ flex: "1 1 120px" }}>
-              <label className="ag-field-label"><Users size={11} style={{ verticalAlign: "-1px", marginRight: "4px" }} />Vagas</label>
-              <input
-                type="number" min={1} max={50} className="ag-input" value={capacityInput}
-                onChange={(e) => setCapacityInput(e.target.value)}
-                onBlur={() => {
-                  const n = parseInt(capacityInput, 10);
-                  const clamped = isNaN(n) || n < 1 ? 1 : Math.min(50, n);
-                  setCapacityInput(String(clamped));
-                }}
-              />
-            </div>
-          </div>
+              {/* forma de pagamento */}
+              <div>
+                <label className="ag-field-label">Pagamento</label>
+                <div className="ag-loc-row">
+                  <button
+                    type="button"
+                    className={`ag-loc-btn ${!payWithPix ? "active" : ""}`}
+                    disabled={credits < 1}
+                    onClick={() => { setPayWithPix(false); setError(null); }}
+                    title={credits < 1 ? "Aluno sem parafinas" : undefined}
+                  >
+                    <WaveTriangle size={13} style={{ verticalAlign: "-2px", marginRight: "5px" }} />
+                    Crédito (parafina)
+                  </button>
+                  <button
+                    type="button"
+                    className={`ag-loc-btn ${payWithPix ? "active" : ""}`}
+                    onClick={() => { setPayWithPix(true); setError(null); }}
+                  >
+                    <Wallet size={13} style={{ verticalAlign: "-2px", marginRight: "5px" }} />
+                    PIX (paga por fora)
+                  </button>
+                </div>
+                <p style={{ fontSize: "11.5px", color: "var(--text-3)", marginTop: "8px" }}>
+                  {payWithPix
+                    ? "A reserva nasce aguardando o pagamento por fora (PIX)."
+                    : "Desconta 1 parafina do saldo do aluno e já confirma a aula."}
+                </p>
+              </div>
 
-          {dupMsg && (
-            <div className="ag-dup">
-              <WarningCircle size={16} style={{ flexShrink: 0, marginTop: "1px" }} />
-              <span>{dupMsg}</span>
-            </div>
-          )}
-          {error && (
-            <div className="ag-dup" style={{ color: "var(--sunset-2)" }}>
-              <WarningCircle size={16} style={{ flexShrink: 0, marginTop: "1px" }} />
-              <span>{error}</span>
-            </div>
+              {error && (
+                <div className="ag-dup">
+                  <WarningCircle size={16} style={{ flexShrink: 0, marginTop: "1px" }} />
+                  <span>{error}</span>
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -552,9 +616,9 @@ function AddClassModal({
           <button onClick={onClose} className="btn-outline" style={{ padding: "9px 18px", fontSize: "13px" }}>
             Cancelar
           </button>
-          <button onClick={handleSubmit} disabled={saving} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "7px", padding: "9px 20px", fontSize: "13px" }}>
-            {saving ? <CircleNotch size={16} className="ph-spin" /> : <FloppyDisk size={16} />}
-            {saving ? "Criando..." : "Criar aula"}
+          <button onClick={handleSubmit} disabled={saving || !picked} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "7px", padding: "9px 20px", fontSize: "13px" }}>
+            {saving ? <CircleNotch size={16} className="ph-spin" /> : <UserPlus size={16} weight="bold" />}
+            {saving ? "Matriculando..." : "Matricular"}
           </button>
         </div>
       </div>
